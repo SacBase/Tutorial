@@ -1,0 +1,22 @@
+import StdIO: all;
+
+#include "NTCtemplates.mac"
+
+/*
+ * This program relies on bug no 23 to be solved 8-(
+ */
+
+int main()
+{
+  a = reshape( [3,0,5], [])[[1]];
+  print( a);
+
+  a = reshape( [3,0,5], [])[[1,0]];
+  print( a);
+
+  a = reshape( [3,0,5], [])[[]];
+  print( a);
+
+  return(0);
+}
+

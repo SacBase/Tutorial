@@ -1,0 +1,19 @@
+import StdIO: all;
+
+#include "NTCtemplates.mac"
+
+int main()
+{
+  weights = [ [0d, 1d, 0d], [1d, 4d, 1d], [ 0d, 1d, 0d]];
+
+  vect = [1d, 2d, 3d, 4d];
+  mat = [ vect, vect+4d, vect+8d, vect+12d];
+  print( mat);
+
+  mat = { [i,j] -> sum( { iv -> weights[iv] * rotate( 1-iv, mat)}[[...,i,j]] ) }
+        / sum( weights);
+  print( mat);
+
+  return(0);
+}
+

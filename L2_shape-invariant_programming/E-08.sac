@@ -1,0 +1,35 @@
+import StdIO: all;
+
+#include "NTCtemplates.mac"
+
+int main()
+{
+  a = reshape( [2,3], [1,2,3,4,5,6]);
+  print( a);
+
+  /*
+   * computing the row-wise sums can be done
+   * by applying the sum-operator to all rows individually:
+   */
+  rws = [ sum( a[[0]]), sum( a[[1]])];
+  print( rws);
+
+  /*
+   * Column-wise sums cannot be generated in the same way
+   * as the selection operation does not permit individual
+   * columns to be selected. Therefore, we have to add up 
+   * the individual rows element-wose:
+   */
+  cws = a[[0]] + a[[1]];
+  print( cws);
+
+
+  /*
+   * For a more general solution where the shape of a is not
+   * statically available, a general mapping construct (such
+   * as the WITH-LOOP or the SET-NOTATION is required!
+   */
+
+  return(0);
+}
+

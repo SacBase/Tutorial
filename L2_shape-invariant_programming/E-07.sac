@@ -1,0 +1,50 @@
+import StdIO: all;
+
+#include "NTCtemplates.mac"
+
+int main()
+{
+  o = [2];
+  v = [3];
+  n = 4;
+  e = 0;
+  m = 6;
+  a = [1,2,3,4,5,6,7,8,9];
+  print( a);
+
+  /*
+   * drop( v, a)
+   */
+  print( take( where( v >= 0,
+                      max(v,shape(a)) - shape(a),
+                      shape(a) + max(v,-shape(a))),
+               a));
+
+  /*
+   * tile( v, o, a)
+   */
+#if 0
+  print( take( v, take( o - shape(a), a)));
+#endif
+
+  /*
+   * shift( [n], e, a)
+   */
+  print( genarray( [n], e) ++ take( shape(a) - [n], a));
+
+  /*
+   * shift( [m,n], a)
+   */
+
+  /*
+   * rotate( [n], a)
+   */
+  print( take( - [n], a) ++ take( shape(a) - [n], a));
+
+  /*
+   * rotate( [m,n], a)
+   */
+
+  return(0);
+}
+

@@ -1,0 +1,35 @@
+import StdIO: all;
+
+#include "NTCtemplates.mac"
+
+int main()
+{
+  vect = [1,2,3,4,5,6,7,8,9];
+
+  mat = [ vect, vect+10, vect+20];
+
+  print( mat[[1]] );
+  /*
+   * Unfortunately, the following examples do not compile
+   * due to a bug in the generalized selections!
+   * sah is hunting it (hopefully 8-)
+   */
+#if 0
+  print( mat[[1,.]] );
+
+  print( mat[[1,...]] );
+
+  print( mat[[.,1]] );
+  print( mat[[...,1]] );
+
+  arr3d = [ mat, mat];
+
+  print( arr3d[[.,1]] );
+  print( arr3d[[...,1]] );
+
+  print( mat[[1,...,1]] );
+#endif
+
+  return(0);
+}
+

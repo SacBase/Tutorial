@@ -1,0 +1,16 @@
+import StdIO: all;
+
+#include "NTCtemplates.mac"
+
+int main()
+{
+  a = [1,2,3,4];
+  b = [a,a];
+
+  a = modarray( modarray( a, [0], 0), [1], 0);
+  b = modarray( b, [0], a);
+  print(b);
+
+  return(0);
+}
+

@@ -1,0 +1,35 @@
+import StdIO: all;
+
+#include "NTCtemplates.mac"
+
+int main()
+{
+  vect = [1,2,3,4,5,6,7,8,9];
+
+  mat = [ vect, vect+10, vect+20];
+  print( mat);
+
+  print( take( [2,-2], mat) );
+#if 0
+  print( take( [2], mat) );
+  print( take( [], mat) );
+
+  print( take( [0], mat) );
+  print( take( [2, 0], mat) );
+  print( take( [2], reshape( [3,0,5], [])) );
+#endif
+
+  print( drop( [0, -1], mat) );
+
+  print( mat ++ mat);
+
+  print( rotate( [-1, 42], mat) );
+  print( rotate( [ 1], mat) );
+
+  print( shift( [0, -2], 0, mat) );
+  print( shift( [0, -22], 0, mat) );
+  print( shift( [1], 0, mat) );
+
+  return(0);
+}
+

@@ -1,0 +1,10 @@
+import StdIO: all;
+
+#include "NTCtemplates.mac"
+
+int main()
+{
+  printf( "Hello World!\n");
+  return(0);
+}
+

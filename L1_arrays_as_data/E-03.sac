@@ -1,0 +1,12 @@
+import StdIO: all;
+
+#include "NTCtemplates.mac"
+
+int main()
+{
+  a = reshape( [5,2,2], genarray( [4], [0,0,0,0,1]));
+  print( a);
+
+  return(0);
+}
+

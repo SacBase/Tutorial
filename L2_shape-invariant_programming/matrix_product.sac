@@ -1,0 +1,18 @@
+import StdIO: all;
+
+#include "NTCtemplates.mac"
+
+int main()
+{
+  id = [ [1d, 0d, 0d], [0d, 1d, 0d], [0d, 0d, 1d]];
+
+  vect = [1d, 2d, 3d, 4d];
+  mat = [ vect, vect+4d, vect+8d];
+  print( mat);
+
+  res = { [i,k] -> sum( id[[i,.]] * mat[[.,k]]) };
+  print( res);
+
+  return(0);
+}
+
