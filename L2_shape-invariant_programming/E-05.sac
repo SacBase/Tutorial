@@ -8,14 +8,33 @@ import StdIO: all;
 
 int main()
 {
-  a = reshape( [3,0,5], [])[[1]];
-  print( a);
+  vect = [1,2,3,4,5,6,7,8,9,10,11,12];
+  mat = reshape( [3,4], vect);
 
-  a = reshape( [3,0,5], [])[[1,0]];
-  print( a);
+
 
   a = reshape( [3,0,5], [])[[]];
   print( a);
+
+  a = reshape( [3,0,5], [])[[1]];
+  print( a);
+
+#ifndef EXCLUDE_ERRORS
+  /*
+   * The following example yields a runtime error as you cannot 
+   * select a particular element in an empty axis!
+   */
+  a = reshape( [3,0,5], [])[[1,0]];
+  print( a);
+
+  /*
+   * The following example is rejected by the compiler, as selection
+   * is defined for vectors only! The expression reshape([2,0], []),
+   * however, denotes an empty matrix!
+   */
+  a = mat[ reshape([2,0], [])];
+  print( a);
+#endif
 
   return(0);
 }
