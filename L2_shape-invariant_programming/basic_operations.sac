@@ -2,10 +2,6 @@ import StdIO: all;
 
 #include "NTCtemplates.mac"
 
-/*
- * this program relies on bug no 26 to be solved!
- */
-
 int main()
 {
   vect = [1,2,3,4,5,6,7,8,9,10,11,12];
@@ -26,12 +22,10 @@ int main()
 
   empty_vect = [];
   print( empty_vect);
-#if 0
   empty_mat = reshape( [22,0], empty_vect);
   print( empty_mat);
   print( dim( empty_mat));
   print( shape( empty_mat));
-#endif
 
   return(0);
 }
