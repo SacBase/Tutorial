@@ -14,11 +14,10 @@ int main()
   a = reshape([3,0,5], []) + reshape([3,0,5], []);
   print( a);
 
+#ifndef EXCLUDE_ERRORS
   /*
-   * the next line contains a type error as the shapes do not match!
-   * Therefore, we have commented it out here.
+   * The next example contains a type error as the shapes do not match!
    */
-#if 0
   a = reshape([3,0,5], []) + reshape([0], []);
   print( a);
 #endif
