@@ -20,12 +20,6 @@ int main()
   a = mat[[...]];
   print( a);
 
-  /*
-   * Unfortunately, the following examples do not compile
-   * due to a bug in the generilized selections!
-   * sah is hunting it (hopefully 8-)
-   */
-#if 0
   a = mat[[.,...]];
   print( a);
 
@@ -40,7 +34,6 @@ int main()
 
   a = mat[[...,.,.]];
   print( a);
-#endif
 
   return(0);
 }
