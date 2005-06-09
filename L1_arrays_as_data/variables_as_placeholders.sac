@@ -1,14 +1,13 @@
-import StdIO: all;
-
-#include "NTCtemplates.mac"
+use Array: all;
+use SimplePrint: all;
 
 int main()
 {
   a = [1,2,3,4];
-  print( a);
+  c = toi( print( a));
 
   b = modarray( a, [0], 9);
-  print( b);
+  c = toi( print( b));
 
   return(0);
 }

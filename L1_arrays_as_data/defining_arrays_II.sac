@@ -1,11 +1,10 @@
-import StdIO: all;
-
-#include "NTCtemplates.mac"
+use Array: all;
+use SimplePrint: all;
 
 int main()
 {
-  print( reshape( [1], [1]));
-  print( reshape( [], [1]));
+  a = toi( print( reshape( [1], [1])));
+  a = toi( print( reshape( [], [1])));
   return(0);
 }
 

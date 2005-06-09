@@ -1,6 +1,5 @@
-import StdIO: all;
-
-#include "NTCtemplates.mac"
+use Array: all;
+use SimplePrint: all;
 
 int main()
 {
@@ -9,7 +8,7 @@ int main()
 
   a = modarray( modarray( a, [0], 0), [1], 0);
   b = modarray( b, [0], a);
-  print(b);
+  c = toi( print(b));
 
   return(0);
 }
