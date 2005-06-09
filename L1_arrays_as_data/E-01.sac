@@ -9,7 +9,7 @@ int main()
    * of the shape does not match the length of the elements!
    */
   a = reshape( [2], [1,2,3]);
-  b = toi( print( a));
+  b = print( a);
 #endif
 
   return(0);
