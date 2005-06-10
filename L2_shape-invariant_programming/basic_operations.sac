@@ -1,31 +1,30 @@
-import StdIO: all;
-
-#include "NTCtemplates.mac"
+use Array: all;
+use SimplePrint: all;
 
 int main()
 {
   vect = [1,2,3,4,5,6,7,8,9,10,11,12];
 
   mat = reshape( [3,4], vect);
-  print( mat);
+  a = toi( print( mat));
 
-  print( mat[[1,1]]);
-  print( mat[[2]]);
-  print( mat[[]]);
+  a = toi( print( mat[[1,1]]));
+  a = toi( print( mat[[2]]));
+  a = toi( print( mat[[]]));
 
   mat[[1,1]] = 0;
-  print( mat);
+  a = toi( print( mat));
   mat[[2]] = [0,0,0,0];
-  print( mat);
+  a = toi( print( mat));
   mat[[]] = genarray( [3,4], 0);
-  print( mat);
+  a = toi( print( mat));
 
   empty_vect = [];
-  print( empty_vect);
+  a = toi( print( empty_vect));
   empty_mat = reshape( [22,0], empty_vect);
-  print( empty_mat);
-  print( dim( empty_mat));
-  print( shape( empty_mat));
+  a = toi( print( empty_mat));
+  a = toi( print( dim( empty_mat)));
+  a = toi( print( shape( empty_mat)));
 
   return(0);
 }

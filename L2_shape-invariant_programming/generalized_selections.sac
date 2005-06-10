@@ -1,28 +1,28 @@
-import StdIO: all;
-
-#include "NTCtemplates.mac"
+use Array: all;
+use Math: all;
+use SimplePrint: all;
 
 int main()
 {
   vect = [1,2,3,4,5,6,7,8,9];
 
   mat = [ vect, vect+10, vect+20];
-  print( mat);
+  a = toi( print( mat));
 
-  print( mat[[1]] );
-  print( mat[[1,.]] );
-  print( mat[[1,...]] );
+  a = toi( print( mat[[1]] ));
+  a = toi( print( mat[[1,.]] ));
+  a = toi( print( mat[[1,...]] ));
 
-  print( mat[[.,1]] );
-  print( mat[[...,1]] );
+  a = toi( print( mat[[.,1]] ));
+  a = toi( print( mat[[...,1]] ));
 
-  print( mat[[1,...,1]] );
+  a = toi( print( mat[[1,...,1]] ));
 
   arr3d = [ mat, mat];
-  print( arr3d);
+  a = toi( print( arr3d));
 
-  print( arr3d[[.,1]] );
-  print( arr3d[[...,1]] );
+  a = toi( print( arr3d[[.,1]] ));
+  a = toi( print( arr3d[[...,1]] ));
 
   return(0);
 }

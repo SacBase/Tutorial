@@ -1,6 +1,6 @@
-import StdIO: all;
-
-#include "NTCtemplates.mac"
+use Array: all;
+use Math: all;
+use SimplePrint: all;
 
 int main()
 {
@@ -8,12 +8,12 @@ int main()
 
   mat = [ vect, vect+10, vect+20];
 
-  print( sum( mat) );
-  print( prod( vect) );
-  print( all( mat >= 1) );
-  print( any( mat > 1) );
-  print( maxval( mat) );
-  print( minval( mat) );
+  a = toi( print( sum( mat) ));
+  a = toi( print( prod( vect) ));
+  a = toi( print( all( mat >= 1) ));
+  a = toi( print( any( mat > 1) ));
+  a = toi( print( maxval( mat) ));
+  a = toi( print( minval( mat) ));
 
   return(0);
 }

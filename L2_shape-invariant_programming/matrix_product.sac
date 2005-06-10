@@ -1,6 +1,6 @@
-import StdIO: all;
-
-#include "NTCtemplates.mac"
+use Array: all;
+use Math: all;
+use SimplePrint: all;
 
 int main()
 {
@@ -8,10 +8,10 @@ int main()
 
   vect = [1d, 2d, 3d, 4d];
   mat = [ vect, vect+4d, vect+8d];
-  print( mat);
+  a = toi( print( mat));
 
   res = { [i,k] -> sum( id[[i,.]] * mat[[.,k]]) };
-  print( res);
+  a = toi( print( res));
 
   return(0);
 }

@@ -1,6 +1,5 @@
-import StdIO: all;
-
-#include "NTCtemplates.mac"
+use Array: all;
+use SimplePrint: all;
 
 /*
  * This program relies on bug no 23 to be solved 8-(
@@ -8,12 +7,11 @@ import StdIO: all;
 
 int main()
 {
-  a = reshape([3,0,5], [])[[0]];
-  print( a);
+/*  a = reshape([3,0,5], [])[[0]];
+  b = toi( print( a));*/
 
   a = reshape([3,0,5], [])[[.,.,0]];
-
-  print( a);
+  b = toi( print( a));
 
   return(0);
 }

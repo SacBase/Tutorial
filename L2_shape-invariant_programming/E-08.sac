@@ -1,18 +1,18 @@
-import StdIO: all;
-
-#include "NTCtemplates.mac"
+use Array: all;
+use Math: all;
+use SimplePrint: all;
 
 int main()
 {
   a = reshape( [2,3], [1,2,3,4,5,6]);
-  print( a);
+  b = toi( print( a));
 
   /*
    * computing the row-wise sums can be done
    * by applying the sum-operator to all rows individually:
    */
   rws = [ sum( a[[0]]), sum( a[[1]])];
-  print( rws);
+  b = toi( print( rws));
 
   /*
    * Column-wise sums cannot be generated in the same way
@@ -21,7 +21,7 @@ int main()
    * the individual rows element-wose:
    */
   cws = a[[0]] + a[[1]];
-  print( cws);
+  b = toi( print( cws));
 
 
   /*

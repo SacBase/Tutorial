@@ -2,7 +2,7 @@
 #
 # General Setup:
 #
-SAC2CFLAGS = -O3 -sbs -fun2lac 7 -ssa -noTSI -noAP -noWLUR -cppI ../.. -check tb -DEXCLUDE_ERRORS
+SAC2CFLAGS = -noopt -dodfr -check tb -DEXCLUDE_ERRORS
 
 #
 # Setup for Makefile.standard:
