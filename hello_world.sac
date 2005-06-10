@@ -1,6 +1,3 @@
-import StdIO: all;
-
-#include "NTCtemplates.mac"
 
 int main()
 {
