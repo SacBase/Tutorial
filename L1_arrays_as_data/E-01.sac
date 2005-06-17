@@ -10,8 +10,10 @@ int main()
    */
   a = reshape( [2], [1,2,3]);
   b = print( a);
+#else
+  b = 0;
 #endif
 
-  return(0);
+  return(b);
 }
 
