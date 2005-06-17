@@ -1,5 +1,4 @@
 use Array: all;
-use Math: all;
 use SimplePrint: all;
 
 int main()
@@ -7,23 +6,27 @@ int main()
   vect = [1,2,3,4,5,6,7,8,9];
 
   mat = [ vect, vect+10, vect+20];
-  a = toi( print( mat));
+  a = print( mat);
 
-  a = toi( print( mat[[1]] ));
-  a = toi( print( mat[[1,.]] ));
-  a = toi( print( mat[[1,...]] ));
+  a+= print( mat[[1]] );
+#if 0
+  a+= print( mat[[1,.]] );
+  a+= print( mat[[1,...]] );
 
-  a = toi( print( mat[[.,1]] ));
-  a = toi( print( mat[[...,1]] ));
+  a+= print( mat[[.,1]] );
+  a+= print( mat[[...,1]] );
+#endif
 
-  a = toi( print( mat[[1,...,1]] ));
+  a+= print( mat[[1,...,1]] );
 
   arr3d = [ mat, mat];
-  a = toi( print( arr3d));
+  a+= print( arr3d);
 
-  a = toi( print( arr3d[[.,1]] ));
-  a = toi( print( arr3d[[...,1]] ));
+#if 0
+  a+= print( arr3d[[.,1]] );
+  a+= print( arr3d[[...,1]] );
+#endif
 
-  return(0);
+  return(a);
 }
 
