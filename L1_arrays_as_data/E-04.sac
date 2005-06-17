@@ -7,9 +7,11 @@ int main()
   b = [a,a];
 
   a = modarray( modarray( a, [0], 0), [1], 0);
-  b = modarray( b, [0], a);
-  c = toi( print(b));
+  d = print( a);
+  d = print( b);
+  b = modarray( b, [1], a);
+  c = print(b);
 
-  return(0);
+  return(c);
 }
 

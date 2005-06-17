@@ -1,7 +1,9 @@
+use SimplePrint: all;
+use Array: all;
 
 int main()
 {
-  printf( "Hello World!\n");
-  return(0);
+  a = printf( "Hello World!\n");
+  return(a);
 }
 
