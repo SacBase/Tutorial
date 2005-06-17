@@ -9,17 +9,17 @@ use SimplePrint: all;
 int main()
 {
   a = min( reshape([3,0,5], []), 42);
-  b = toi( print( a));
+  b = print( a);
 
   a = reshape([3,0,5], []) + reshape([3,0,5], []);
-  b = toi( print( a));
+  b+= print( a);
 
 #ifndef EXCLUDE_ERRORS
   /*
    * The next example contains a type error as the shapes do not match!
    */
-  a = reshape([3,0,5], []) + reshape([0], []);
-  b = toi( print( a));
+  a = reshape([1,1], [1]) + reshape([1], [1]);
+  b+= print( a);
 #endif
 
   return(0);
