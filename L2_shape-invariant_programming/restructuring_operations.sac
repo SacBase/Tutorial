@@ -1,5 +1,4 @@
 use Array: all;
-use Math: all;
 use SimplePrint: all;
 
 int main()
@@ -7,28 +6,26 @@ int main()
   vect = [1,2,3,4,5,6,7,8,9];
 
   mat = [ vect, vect+10, vect+20];
-  a = toi( print( mat));
+  a = print( mat);
 
-  a = toi( print( take( [2,-2], mat) ));
-#if 0
-  a = toi( print( take( [2], mat) ));
-  a = toi( print( take( [], mat) ));
+  a+= print( take( [2,-2], mat) );
+  a+= print( take( [2], mat) );
+  a+= print( take( [], mat) );
 
-  a = toi( print( take( [0], mat) ));
-  a = toi( print( take( [2, 0], mat) ));
-  a = toi( print( take( [2], reshape( [3,0,5], [])) ));
-#endif
+  a+= print( take( [0], mat) );
+  a+= print( take( [2, 0], mat) );
+  a+= print( take( [2], reshape( [3,0,5], [])) );
 
-  a = toi( print( drop( [0, -1], mat) ));
+  a+= print( drop( [0, -1], mat) );
 
-  a = toi( print( mat ++ mat));
+  a+= print( mat ++ mat);
 
-  a = toi( print( rotate( [-1, 42], mat) ));
-  a = toi( print( rotate( [ 1], mat) ));
+  a+= print( rotate( [-1, 42], mat) );
+  a+= print( rotate( [ 1], mat) );
 
-  a = toi( print( shift( [0, -2], 0, mat) ));
-  a = toi( print( shift( [0, -22], 0, mat) ));
-  a = toi( print( shift( [1], 0, mat) ));
+  a+= print( shift( [0, -2], 0, mat) );
+  a+= print( shift( [0, -22], 0, mat) );
+  a+= print( shift( [1], 0, mat) );
 
   return(0);
 }
