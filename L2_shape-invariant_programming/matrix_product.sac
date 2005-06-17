@@ -1,5 +1,4 @@
 use Array: all;
-use Math: all;
 use SimplePrint: all;
 
 int main()
@@ -8,11 +7,11 @@ int main()
 
   vect = [1d, 2d, 3d, 4d];
   mat = [ vect, vect+4d, vect+8d];
-  a = toi( print( mat));
+  a = print( mat);
 
   res = { [i,k] -> sum( id[[i,.]] * mat[[.,k]]) };
-  a = toi( print( res));
+  a+= print( res);
 
-  return(0);
+  return(a);
 }
 
