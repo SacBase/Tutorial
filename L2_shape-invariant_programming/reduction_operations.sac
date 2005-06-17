@@ -1,5 +1,4 @@
 use Array: all;
-use Math: all;
 use SimplePrint: all;
 
 int main()
@@ -8,12 +7,12 @@ int main()
 
   mat = [ vect, vect+10, vect+20];
 
-  a = toi( print( sum( mat) ));
-  a = toi( print( prod( vect) ));
-  a = toi( print( all( mat >= 1) ));
-  a = toi( print( any( mat > 1) ));
-  a = toi( print( maxval( mat) ));
-  a = toi( print( minval( mat) ));
+  a = print( sum( mat) );
+  a+= print( prod( vect) );
+  a+= print( Bool:toi( all( mat >= 1) ));
+  a+= print( Bool:toi( any( mat > 1) ));
+  a+= print( maxval( mat) );
+  a+= print( minval( mat) );
 
   return(0);
 }
