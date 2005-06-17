@@ -6,26 +6,26 @@ int main()
   vect = [1,2,3,4,5,6,7,8,9,10,11,12];
 
   mat = reshape( [3,4], vect);
-  a = toi( print( mat));
+  a = print( mat);
 
-  a = toi( print( mat[[1,1]]));
-  a = toi( print( mat[[2]]));
-  a = toi( print( mat[[]]));
+  a+= print( mat[[1,1]]);
+  a+= print( mat[[2]]);
+  a+= print( mat[[]]);
 
   mat[[1,1]] = 0;
-  a = toi( print( mat));
+  a+= print( mat);
   mat[[2]] = [0,0,0,0];
-  a = toi( print( mat));
+  a+= print( mat);
   mat[[]] = genarray( [3,4], 0);
-  a = toi( print( mat));
+  a+= print( mat);
 
   empty_vect = [];
-  a = toi( print( empty_vect));
+  a+= print( empty_vect);
   empty_mat = reshape( [22,0], empty_vect);
-  a = toi( print( empty_mat));
-  a = toi( print( dim( empty_mat)));
-  a = toi( print( shape( empty_mat)));
+  a+= print( empty_mat);
+  a+= print( dim( empty_mat));
+  a+= print( shape( empty_mat));
 
-  return(0);
+  return(a);
 }
 
