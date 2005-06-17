@@ -1,18 +1,17 @@
 use Array: all;
-use Math: all;
 use SimplePrint: all;
 
 int main()
 {
   a = reshape( [2,3], [1,2,3,4,5,6]);
-  b = toi( print( a));
+  b = print( a);
 
   /*
    * computing the row-wise sums can be done
    * by applying the sum-operator to all rows individually:
    */
   rws = [ sum( a[[0]]), sum( a[[1]])];
-  b = toi( print( rws));
+  b+= print( rws);
 
   /*
    * Column-wise sums cannot be generated in the same way
@@ -21,15 +20,15 @@ int main()
    * the individual rows element-wose:
    */
   cws = a[[0]] + a[[1]];
-  b = toi( print( cws));
+  b+= print( cws);
 
 
   /*
    * For a more general solution where the shape of a is not
    * statically available, a general mapping construct (such
-   * as the WITH-LOOP or the SET-NOTATION is required!
+   * as the WITH-LOOP or the SET-NOTATION) is required!
    */
 
-  return(0);
+  return(b);
 }
 
