@@ -3,9 +3,9 @@ use SimplePrint: all;
 
 int main()
 {
-  a = toi( print( reshape( [5], [1,2,3,4,5])));
-  a = toi( print( reshape( [3,2], [1,2,3,4,5,6])));
-  a = toi( print( reshape( [3,2,1], [1,2,3,4,5,6])));
-  return(0);
+  a  = print( reshape( [5], [1,2,3,4,5]));
+  a += print( reshape( [3,2], [1,2,3,4,5,6]));
+  a += print( reshape( [3,2,1], [1,2,3,4,5,6]));
+  return(a);
 }
 
