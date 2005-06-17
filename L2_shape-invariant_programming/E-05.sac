@@ -14,10 +14,10 @@ int main()
 
 
   a = reshape( [3,0,5], [])[[]];
-  b = toi( print( a));
+  b = print( a);
 
   a = reshape( [3,0,5], [])[[1]];
-  b = toi( print( a));
+  b+= print( a);
 
 #ifndef EXCLUDE_ERRORS
   /*
@@ -25,7 +25,7 @@ int main()
    * select a particular element in an empty axis!
    */
   a = reshape( [3,0,5], [])[[1,0]];
-  b = toi( print( a));
+  b+= print( a);
 
   /*
    * The following example is rejected by the compiler, as selection
@@ -33,9 +33,9 @@ int main()
    * however, denotes an empty matrix!
    */
   a = mat[ reshape([2,0], [])];
-  b = toi( print( a));
+  b+= print( a);
 #endif
 
-  return(0);
+  return(b);
 }
 
