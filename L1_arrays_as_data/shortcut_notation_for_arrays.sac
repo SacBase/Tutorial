@@ -3,11 +3,11 @@ use SimplePrint: all;
 
 int main()
 {
-  a = toi( print( 1));
-  a = toi( print( [1,2,3,4,5]));
-  a = toi( print( [ [1,2], [3,4], [5,6]]));
-  a = toi( print( genarray( [4,3,2], 1)));
-  a = toi( print( genarray( [4,3], [1,2])));
-  return(0);
+  a = print( 1);
+  a+= print( [1,2,3,4,5]);
+  a+= print( [ [1,2], [3,4], [5,6]]);
+  a+= print( genarray( [4,3,2], 1));
+  a+= print( genarray( [4,3], [1,2]));
+  return(a);
 }
 

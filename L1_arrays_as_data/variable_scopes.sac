@@ -6,13 +6,13 @@ int main()
   a = [1,2,3,4];
 
   b = modarray( a, [0], 9);
-  c = toi( print( a));
+  c = print( a);
   a = b;
-  c = toi( print( a));
+  c+= print( a);
 
   a = modarray( a, [1], 8);
-  c = toi( print(a));
+  c+= print(a);
 
-  return(0);
+  return(c);
 }
 
