@@ -1,48 +1,50 @@
 use Array: all;
-use Math: all;
 use SimplePrint: all;
 
 int main()
 {
-  o = [2];
-  v = [3];
-  n = 4;
+  o = [1,0];
+  v = [1,2];
+  n = 2;
   e = 0;
   m = 6;
-  a = [1,2,3,4,5,6,7,8,9];
-  b = toi( print( a));
+  a = reshape( [3,3], [1,2,3,4,5,6,7,8,9]);
+  b = print( a);
 
   /*
    * drop( v, a)
    */
-  b = toi( print( take( where( v >= 0,
-           	               max(v,shape(a)) - shape(a),
-                	       shape(a) + max(v,-shape(a))),
-                        a)));
+  b+= print( take( where( v >= 0,
+           	          v - take( shape(v), shape(a)),
+                	  take( shape( v), shape(a)) + v),
+                   a));
 
   /*
    * tile( v, o, a)
    */
-#if 0
-  b = toi( print( take( v, take( o - shape(a), a))));
-#endif
+  b+= print( take( v, drop( o, a)));
 
   /*
    * shift( [n], e, a)
    */
-  b = toi( print( genarray( [n], e) ++ take( shape(a) - [n], a)));
+  b+= print( genarray( [n] ++ drop( [1], shape( a)), e)
+             ++ drop( [n], a));
 
   /*
    * shift( [m,n], a)
+   *
+   * possible but tedious!!!!
    */
 
   /*
    * rotate( [n], a)
    */
-  b = toi( print( take( - [n], a) ++ take( shape(a) - [n], a)));
+  b+= print( take( - [n], a) ++ drop( [n], a));
 
   /*
    * rotate( [m,n], a)
+   *
+   * possible but tedious!!!!
    */
 
   return(0);
