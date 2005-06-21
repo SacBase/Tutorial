@@ -1,4 +1,4 @@
-use StdIO: all;
+use SimplePrint: all;
 use Array: all;
 
 int main()
