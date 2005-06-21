@@ -1,4 +1,4 @@
-use StdIO: all;
+use SimplePrint: all;
 use Array: all;
 
 int main()
@@ -9,10 +9,10 @@ int main()
   a = print( mat);
 
   sum_rows = { [i] -> sum( mat[[i]]) };
-  a+= print( arr3d);
+  a+= print( sum_rows);
 
   sum_cols = { [.,i] -> sum( mat[[.,i]]) };
-  a+= print( arr3d);
+  a+= print( sum_cols);
 
   return(a);
 }
