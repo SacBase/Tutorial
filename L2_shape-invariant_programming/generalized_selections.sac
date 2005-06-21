@@ -9,23 +9,19 @@ int main()
   a = print( mat);
 
   a+= print( mat[[1]] );
-#if 0
   a+= print( mat[[1,.]] );
   a+= print( mat[[1,...]] );
 
   a+= print( mat[[.,1]] );
   a+= print( mat[[...,1]] );
-#endif
 
   a+= print( mat[[1,...,1]] );
 
   arr3d = [ mat, mat];
   a+= print( arr3d);
 
-#if 0
   a+= print( arr3d[[.,1]] );
   a+= print( arr3d[[...,1]] );
-#endif
 
   return(a);
 }
