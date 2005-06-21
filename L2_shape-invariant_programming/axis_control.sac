@@ -11,7 +11,7 @@ int main()
   sum_rows = { [i] -> sum( mat[[i]]) };
   a+= print( sum_rows);
 
-  sum_cols = { [.,i] -> sum( mat[[.,i]]) };
+  sum_cols = { [i] -> sum( mat[[.,i]]) };
   a+= print( sum_cols);
 
   return(a);
