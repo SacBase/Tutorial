@@ -1,0 +1,22 @@
+use Array: all;
+use SimplePrint: all;
+
+int main()
+{
+  vect = [0,1,2,3,4,5,6,7,8,9];
+
+  mat = reshape( [10,0], []);
+  a = print( mat);
+
+  mat_inc = { iv -> mat[iv] + 1};
+  a+= print( mat_inc);
+
+  mat_trans = { [i,j] -> mat[[j,i]] };
+  a+= print( mat_trans);
+
+  mat_diag = { [i,j] -> where( i==j , mat[[i,j]] , 0) };
+  a+= print( mat_diag);
+
+  return(a);
+}
+
