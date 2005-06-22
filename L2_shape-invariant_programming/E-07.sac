@@ -28,7 +28,7 @@ int main()
    * shift( [n], e, a)
    */
   b+= print( genarray( [n] ++ drop( [1], shape( a)), e)
-             ++ drop( [n], a));
+             ++ drop( [-n], a));
 
   /*
    * shift( [m,n], a)
@@ -39,7 +39,7 @@ int main()
   /*
    * rotate( [n], a)
    */
-  b+= print( take( - [n], a) ++ drop( [n], a));
+  b+= print( take( - [n], a) ++ drop( [-n], a));
 
   /*
    * rotate( [m,n], a)
