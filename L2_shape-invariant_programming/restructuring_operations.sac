@@ -19,6 +19,8 @@ int main()
   a+= print( drop( [0, -1], mat) );
 
   a+= print( mat ++ mat);
+  a+= print( reverse( vect));
+  a+= print( reverse( mat));
 
   a+= print( rotate( [-1, 42], mat) );
   a+= print( rotate( [ 1], mat) );
