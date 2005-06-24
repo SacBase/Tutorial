@@ -1,0 +1,19 @@
+use SimplePrint: all;
+use Array: all;
+
+int main()
+{
+  vect = [0,1,2,3,4,5,6,7,8,9];
+
+  mat = { [.,i] -> vect[[i]]*10+vect };
+  a = print( mat);
+
+  sum_rows = { [i] -> sum( mat[[i]]) };
+  a+= print( sum_rows);
+
+  sum_cols = { [i] -> sum( mat[[.,i]]) };
+  a+= print( sum_cols);
+
+  return(a);
+}
+
