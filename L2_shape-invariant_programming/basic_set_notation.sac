@@ -14,7 +14,7 @@ int main()
   mat_trans = { [i,j] -> mat[[j,i]] };
   a+= print( mat_trans);
 
-  mat_diag = { [i,j] -> where( i==j , mat[[i,j]] , 0) };
+  mat_diag = { [i,j] -> ( i==j ? mat[[i,j]] : 0) };
   a+= print( mat_diag);
 
   return(a);
