@@ -1,0 +1,20 @@
+use SimplePrint: all;
+use Array: all;
+
+int main()
+{
+  vect = [0,1,2,3];
+
+  arr3d = { [i,j] -> vect[[i]]*4 + vect[[j]]*16 + vect };
+  a = print( arr3d);
+
+  a+= print( arr3d ++ arr3d);
+  a+= print( { [i] -> arr3d[[i]] ++ arr3d[[i]] });
+  a+= print( { [i,j] -> arr3d[[i,j]] ++ arr3d[[i,j]] });
+  
+  a+= print( reverse( arr3d));
+  a+= print( { [i] -> reverse( arr3d[[i]]) });
+  a+= print( { [i,j] -> reverse( arr3d[[i,j]]) });
+  return(0);
+}
+
