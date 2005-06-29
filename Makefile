@@ -1,5 +1,20 @@
 #######################################################################################
 #
+# For installing the tutorial, it has to made sure these have been unpacked completely.
+# Therefore, we have to wrap up the standard make mechanism as included by
+# the target "standard_all" from Makefile_template.prg by potentially calling
+# "make untar" first:
+#
+
+all: L1_arrays_as_data/E-01.sac
+        $(MAKE) standard_all
+
+L1_arrays_as_data/E-01.sac:
+        $(MAKE) untar TARFILENAME=tutorial.tar
+
+
+#######################################################################################
+#
 # General Setup:
 #
 SAC2CFLAGS = -noopt -dodfr -check tb
