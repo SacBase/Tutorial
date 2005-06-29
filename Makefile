@@ -7,10 +7,10 @@
 #
 
 all: L1_arrays_as_data/E-01.sac
-        $(MAKE) standard_all
+	$(MAKE) standard_all
 
 L1_arrays_as_data/E-01.sac:
-        $(MAKE) untar TARFILENAME=tutorial.tar
+	$(MAKE) untar TARFILENAME=tutorial.tar
 
 
 #######################################################################################
