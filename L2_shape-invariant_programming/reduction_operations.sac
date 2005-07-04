@@ -9,8 +9,8 @@ int main()
 
   a = print( sum( mat) );
   a+= print( prod( vect) );
-  a+= print( Bool:toi( all( mat >= 1) ));
-  a+= print( Bool:toi( any( mat > 1) ));
+  a+= print( Bool::toi( all( mat >= 1) ));
+  a+= print( Bool::toi( any( mat > 1) ));
   a+= print( maxval( mat) );
   a+= print( minval( mat) );
 
