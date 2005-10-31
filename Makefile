@@ -17,7 +17,7 @@ L1_arrays_as_data/E-01.sac:
 #
 # General Setup:
 #
-SAC2CFLAGS = -noopt -dodfr -check tb
+SAC2CFLAGS = -check tb -v1 -O3
 
 #
 # Setup for Makefile.standard:
