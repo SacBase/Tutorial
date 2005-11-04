@@ -2,9 +2,11 @@
 #
 # General Setup:
 #
-SAC2CFLAGS = -noopt -dodfr -check tb
+SAC2CFLAGS = -check tb -v 1 -O3 
 
-# -DEXCLUDE_ERRORS
+ifdef EXCLUDE_ERRORS
+SAC2CFLAGS += -DEXCLUDE_ERRORS
+endif
 
 #
 # Setup for Makefile.standard:
