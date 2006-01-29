@@ -1,9 +1,9 @@
-use SimplePrint: all;
+use StdIO: all;
 use Array: all;
 
 int main()
 {
-  a = printf( "Hello World!\n");
-  return(a);
+  printf( "Hello World!\n");
+  return(0);
 }
 
