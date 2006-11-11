@@ -1,5 +1,5 @@
 use Array: all;
-use SimplePrint: all;
+use StdIO: all;
 
 int main()
 {
@@ -9,25 +9,25 @@ int main()
   e = 0;
   m = 6;
   a = reshape( [3,3], [1,2,3,4,5,6,7,8,9]);
-  b = print( a);
+  print( a);
 
   /*
    * drop( v, a)
    */
-  b+= print( take( where( v >= 0,
-           	          v - take( shape(v), shape(a)),
-                	  take( shape( v), shape(a)) + v),
-                   a));
+  print( take( where( v >= 0,
+       	          v - take( shape(v), shape(a)),
+               	  take( shape( v), shape(a)) + v),
+               a));
 
   /*
    * tile( v, o, a)
    */
-  b+= print( take( v, drop( o, a)));
+  print( take( v, drop( o, a)));
 
   /*
    * shift( [n], e, a)
    */
-  b+= print( genarray( [n] ++ drop( [1], shape( a)), e)
+  print( genarray( [n] ++ drop( [1], shape( a)), e)
              ++ drop( [-n], a));
 
   /*
@@ -39,7 +39,7 @@ int main()
   /*
    * rotate( [n], a)
    */
-  b+= print( take( - [n], a) ++ drop( [-n], a));
+  print( take( - [n], a) ++ drop( [-n], a));
 
   /*
    * rotate( [m,n], a)

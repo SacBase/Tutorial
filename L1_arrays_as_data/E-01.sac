@@ -1,5 +1,5 @@
 use Array: all;
-use SimplePrint: all;
+use StdIO: all;
 
 int main()
 {
@@ -9,11 +9,9 @@ int main()
    * of the shape does not match the length of the elements!
    */
   a = reshape( [2], [1,2,3]);
-  b = print( a);
-#else
-  b = 0;
+  print( a);
 #endif
 
-  return(b);
+  return(0);
 }
 

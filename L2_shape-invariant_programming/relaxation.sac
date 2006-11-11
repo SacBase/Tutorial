@@ -1,6 +1,6 @@
 use Array: all;
 use Math: all;
-use SimplePrint: all;
+use StdIO: all;
 
 int main()
 {
@@ -8,11 +8,11 @@ int main()
 
   vect = [1d, 2d, 3d, 4d];
   mat = [ vect, vect+4d, vect+8d, vect+12d];
-  a = toi( print( mat));
+  toi( print( mat));
 
   mat = { [i,j] -> sum( { iv -> weights[iv] * rotate( 1-iv, mat)}[[...,i,j]] ) }
         / sum( weights);
-  a = toi( print( mat));
+  toi( print( mat));
 
   return(0);
 }

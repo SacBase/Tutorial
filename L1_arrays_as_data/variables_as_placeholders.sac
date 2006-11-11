@@ -1,14 +1,14 @@
 use Array: all;
-use SimplePrint: all;
+use StdIO: all;
 
 int main()
 {
   a = [1,2,3,4];
-  c = print( a);
+  print(a);
 
   b = modarray( a, [0], 9);
-  c+= print( b);
+  print(b);
 
-  return(c);
+  return(0);
 }
 

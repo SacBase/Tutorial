@@ -1,18 +1,18 @@
 use Array: all;
-use SimplePrint: all;
+use StdIO: all;
 
 int main()
 {
   a = [1,2,3,4];
 
   b = modarray( a, [0], 9);
-  c = print( a);
+  print( a);
   a = b;
-  c+= print( a);
+  print( a);
 
   a = modarray( a, [1], 8);
-  c+= print(a);
+  print(a);
 
-  return(c);
+  return(0);
 }
 

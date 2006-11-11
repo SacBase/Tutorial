@@ -1,5 +1,5 @@
 use Array: all;
-use SimplePrint: all;
+use StdIO: all;
 
 int main()
 {
@@ -7,11 +7,11 @@ int main()
   b = [a,a];
 
   a = modarray( modarray( a, [0], 0), [1], 0);
-  d = print( a);
-  d = print( b);
+  print(a);
+  print(b);
   b = modarray( b, [1], a);
-  c = print(b);
+  print(b);
 
-  return(c);
+  return(0);
 }
 

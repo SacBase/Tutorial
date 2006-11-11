@@ -1,4 +1,4 @@
-use SimplePrint: all;
+use StdIO: all;
 use Array: all;
 
 int main()
@@ -6,19 +6,19 @@ int main()
   vect = [0,1,2,3];
 
   arr3d = { [i,j] -> vect[[i]]*4 + vect[[j]]*16 + vect };
-  a = print( arr3d);
+  print( arr3d);
 
   max_inner_vects = { [i,j] -> maxval( arr3d[[i,j]]) };
-  a+= print( max_inner_vects);
+  print( max_inner_vects);
 
   max_inner_arrays = { [i] -> maxval( arr3d[[i]]) };
-  a+= print( max_inner_arrays);
+  print( max_inner_arrays);
 
   max_inner_outer_arrays = { [i] -> maxval( arr3d[[.,i,.]]) };
-  a+= print( max_inner_outer_arrays);
+  print( max_inner_outer_arrays);
 
   max_outer_arrays = { [i] -> maxval( arr3d[[.,.,i]]) };
-  a+= print( max_outer_arrays);
+  print( max_outer_arrays);
   return(0);
 }
 

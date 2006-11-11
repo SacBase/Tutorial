@@ -1,4 +1,4 @@
-use SimplePrint: all;
+use StdIO: all;
 use Array: all;
 
 int main()
@@ -6,15 +6,15 @@ int main()
   vect = [0,1,2,3];
 
   arr3d = { [i,j] -> vect[[i]]*4 + vect[[j]]*16 + vect };
-  a = print( arr3d);
+  print( arr3d);
 
-  a+= print( arr3d ++ arr3d);
-  a+= print( { [i] -> arr3d[[i]] ++ arr3d[[i]] });
-  a+= print( { [i,j] -> arr3d[[i,j]] ++ arr3d[[i,j]] });
+  print( arr3d ++ arr3d);
+  print( { [i] -> arr3d[[i]] ++ arr3d[[i]] });
+  print( { [i,j] -> arr3d[[i,j]] ++ arr3d[[i,j]] });
   
-  a+= print( reverse( arr3d));
-  a+= print( { [i] -> reverse( arr3d[[i]]) });
-  a+= print( { [i,j] -> reverse( arr3d[[i,j]]) });
+  print( reverse( arr3d));
+  print( { [i] -> reverse( arr3d[[i]]) });
+  print( { [i,j] -> reverse( arr3d[[i,j]]) });
   return(0);
 }
 

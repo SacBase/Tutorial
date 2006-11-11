@@ -1,17 +1,17 @@
 use Array: all;
-use SimplePrint: all;
+use StdIO: all;
 
 int main()
 {
   a = reshape( [2,3], [1,2,3,4,5,6]);
-  b = print( a);
+  print( a);
 
   /*
    * computing the row-wise sums can be done
    * by applying the sum-operator to all rows individually:
    */
   rws = [ sum( a[[0]]), sum( a[[1]])];
-  b+= print( rws);
+  print( rws);
 
   /*
    * Column-wise sums cannot be generated in the same way
@@ -20,7 +20,7 @@ int main()
    * the individual rows element-wose:
    */
   cws = a[[0]] + a[[1]];
-  b+= print( cws);
+  print( cws);
 
 
   /*
@@ -29,6 +29,6 @@ int main()
    * as the WITH-LOOP or the SET-NOTATION) is required!
    */
 
-  return(b);
+  return(0);
 }
 

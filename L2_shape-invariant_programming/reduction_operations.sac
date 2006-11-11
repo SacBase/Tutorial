@@ -1,5 +1,5 @@
 use Array: all;
-use SimplePrint: all;
+use StdIO: all;
 
 int main()
 {
@@ -7,13 +7,13 @@ int main()
 
   mat = [ vect, vect+10, vect+20];
 
-  a = print( sum( mat) );
-  a+= print( prod( vect) );
-  a+= print( Bool::toi( all( mat >= 1) ));
-  a+= print( Bool::toi( any( mat > 1) ));
-  a+= print( maxval( mat) );
-  a+= print( minval( mat) );
+  print( sum( mat) );
+  print( prod( vect) );
+  print( Bool::toi( all( mat >= 1) ));
+  print( Bool::toi( any( mat > 1) ));
+  print( maxval( mat) );
+  print( minval( mat) );
 
-  return(a);
+  return(0);
 }
 

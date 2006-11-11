@@ -1,11 +1,11 @@
 use Array: all;
-use SimplePrint: all;
+use StdIO: all;
 
 int main()
 {
   a = reshape( [5,2,2], genarray( [4], [0,0,0,0,1]));
-  b = print( a);
+  print( a);
 
-  return(b);
+  return(0);
 }
 

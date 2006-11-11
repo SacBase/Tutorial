@@ -1,33 +1,33 @@
 use Array: all;
-use SimplePrint: all;
+use StdIO: all;
 
 int main()
 {
   vect = [1,2,3,4,5,6,7,8,9];
 
   mat = [ vect, vect+10, vect+20];
-  a = print( mat);
+  print( mat);
 
-  a+= print( take( [2,-2], mat) );
-  a+= print( take( [2], mat) );
-  a+= print( take( [], mat) );
+  print( take( [2,-2], mat) );
+  print( take( [2], mat) );
+  print( take( [], mat) );
 
-  a+= print( take( [0], mat) );
-  a+= print( take( [2, 0], mat) );
-  a+= print( take( [2], reshape( [3,0,5], [])) );
+  print( take( [0], mat) );
+  print( take( [2, 0], mat) );
+  print( take( [2], reshape( [3,0,5], [])) );
 
-  a+= print( drop( [0, -1], mat) );
+  print( drop( [0, -1], mat) );
 
-  a+= print( mat ++ mat);
-  a+= print( reverse( vect));
-  a+= print( reverse( mat));
+  print( mat ++ mat);
+  print( reverse( vect));
+  print( reverse( mat));
 
-  a+= print( rotate( [-1, 42], mat) );
-  a+= print( rotate( [ 1], mat) );
+  print( rotate( [-1, 42], mat) );
+  print( rotate( [ 1], mat) );
 
-  a+= print( shift( [0, -2], 0, mat) );
-  a+= print( shift( [0, -22], 0, mat) );
-  a+= print( shift( [1], 0, mat) );
+  print( shift( [0, -2], 0, mat) );
+  print( shift( [0, -22], 0, mat) );
+  print( shift( [1], 0, mat) );
 
   return(0);
 }
