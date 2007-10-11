@@ -1,0 +1,15 @@
+Dimension:  1
+Shape    : <  5>
+< 1  2  3  4  5 > 
+Dimension:  2
+Shape    : <  3,  2>
+| 1  2 | 
+| 3  4 | 
+| 5  6 | 
+
+Dimension:  3
+Shape    : <  3,  2,  1>
+< 1 > < 2 > 
+< 3 > < 4 > 
+< 5 > < 6 > 
+

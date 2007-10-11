@@ -1,0 +1,48 @@
+Dimension:  2
+Shape    : <  3,  4>
+| 1  2  3  4 | 
+| 5  6  7  8 | 
+| 9 10 11 12 | 
+
+Dimension:  0
+Shape    : < >
+ 6
+Dimension:  1
+Shape    : <  4>
+< 9 10 11 12 > 
+Dimension:  2
+Shape    : <  3,  4>
+| 1  2  3  4 | 
+| 5  6  7  8 | 
+| 9 10 11 12 | 
+
+Dimension:  2
+Shape    : <  3,  4>
+| 1  2  3  4 | 
+| 5  0  7  8 | 
+| 9 10 11 12 | 
+
+Dimension:  2
+Shape    : <  3,  4>
+| 1  2  3  4 | 
+| 5  0  7  8 | 
+| 0  0  0  0 | 
+
+Dimension:  2
+Shape    : <  3,  4>
+| 0  0  0  0 | 
+| 0  0  0  0 | 
+| 0  0  0  0 | 
+
+Dimension:  1
+Shape    : <  0>
+<>
+Dimension:  2
+Shape    : < 22,  0>
+<>
+Dimension:  0
+Shape    : < >
+ 2
+Dimension:  1
+Shape    : <  2>
+<22  0 > 

@@ -1,0 +1,13 @@
+Dimension:  1
+Shape    : <  4>
+< 0  0  3  4 > 
+Dimension:  2
+Shape    : <  2,  4>
+| 1  2  3  4 | 
+| 1  2  3  4 | 
+
+Dimension:  2
+Shape    : <  2,  4>
+| 1  2  3  4 | 
+| 0  0  3  4 | 
+
