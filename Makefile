@@ -17,7 +17,7 @@ L1_arrays_as_data/E-01.sac:
 #
 # General Setup:
 #
-SAC2CFLAGS = -check tb -v1 -O3
+SAC2CFLAGS = -check ctb -v1 -O3
 
 ifdef EXCLUDE_ERRORS
 SAC2CFLAGS += -DEXCLUDE_ERRORS
