@@ -1,0 +1,28 @@
+
+This directory contains:
+ - example implementation of Sobel and Gauss image filters
+ - sample image data as input in testimages.tar.bz2:
+     - hall.fibre (large, 4288x2848 pixels)
+     - saclogo.fibre (small, 130x70 pixels)
+     - saclogo.dat (same as above but in simple matrix format)
+
+
+To compile this program, run 
+
+  sac2c -D<filter> image_filter.sac -o image_filter
+
+where <filter> is one of the following: SOBEL, GAUSS, GAUSS25. If no -D
+is given a Sobel filter will be used.
+
+The program reads an image in fibre format from stdin and writes
+the resulting image to stdout in simple matrix format. This
+format may be conveniently plotted using gnuplot. For example,
+after running the program:
+
+  ./image_filter < saclogo.fibre > saclogo-edges.dat
+
+display the image data using gnuplot:
+
+  gnuplot> plot "saclogo.dat" matrix with image
+  gnuplot> plot "saclogo-edges.dat" matrix with image
+

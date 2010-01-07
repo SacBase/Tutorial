@@ -1,0 +1,156 @@
+use Structures: all;
+use StdIO: all ;
+use Clock: {time, gettime, difftime};
+
+/*
+ * Helper to write matrix to stdout in plain matrix format
+ * The produced output (let's say m.dat) can be used with gnuplot like so:
+ *
+ * gnuplot> plot "m.dat" matrix with image
+ *
+ */
+void writeMatrix( int[.,.] m)
+{
+  for( y=0; y<shape(m)[1]; y++) {
+    for( x=0; x<shape(m)[0]; x++) {
+      printf( "%d ", m[[x,y]]);
+    }
+    printf( "\n");
+  }
+}
+
+/*
+ * Cut off all values that are geq to a given max_val
+ * This is used to remove any invalid 8-bit grayscale values (> 255)
+ */
+inline
+int thrs( int val, int max_val)
+{
+  return( val <= max_val ? val : max_val);
+}
+
+inline
+int[*] thrs( int[*] vals, int max_val)
+{
+  res = with{ ( . <= iv <= . ) : thrs( vals[iv], max_val);
+        } : genarray( shape( vals), 0); 
+
+  return( res);
+}
+
+/*
+ * Convolution with given mask 
+ */
+inline
+int[.,.] apply( int[.,.] kernel, int[.,.] img)
+{
+  /* Generate offset matrix for given kernel 
+   * for example, offsets for a 3x3 kernel are as follows:
+   *
+   * [-1,-1] | [0, -1] | [1, -1]
+   * --------+---------+--------
+   * [-1, 0] | [0,  0] | [1,  0]
+   * --------+---------+--------
+   * [-1, 1] | [0,  1] | [1,  1]
+   */
+  offs = with { (. <= iv <= .) : iv - (shape( kernel)[0]/2);
+         } : genarray( shape( kernel), 0*shape( kernel));
+ 
+  /* Add boundary large enough for given kernel */
+  b_size = shape(kernel)[0]/2;
+  framed = with{ 
+             ( 0*shape( img) + b_size <= iv < shape( img)+b_size) : 
+               img[iv - b_size];
+           } : genarray( shape( img) + 2*b_size, 0); 
+
+
+  /* apply kernel to framed image */
+  res = with { (0*shape(framed)+b_size <= iv < shape( framed)-b_size) : 
+                 abs( 
+                   sum( 
+                     with { ( . <= iiv <= . ) : 
+                       kernel[iiv] * framed[iv + offs[iiv]];
+                     } : genarray( shape( kernel), 0)
+                   )
+                 );
+        } : modarray( framed);
+
+  /* cut out the tile containing the image */
+  return( tile( shape( img), shape( img)*0+b_size, res));
+}
+
+
+
+int[.,.] sobelEdges( int[.,.] img) 
+{
+  SY = [
+        [1, 2, 1],
+        [0, 0, 0],
+        [-1, -2, -1]
+       ];
+  SX = transpose( SY);
+  
+  resX = apply( SX, img);
+  resY = apply( SY, img);
+
+  return( thrs( resX + resY, 255));
+}
+specialize int[.,.] sobelEdges( int[4288,2848] img);
+
+
+
+int[.,.] gaussBlur( int[.,.] img) 
+{
+  GB = [ 
+         [ 1, 2, 1],
+         [ 2, 3, 2],
+         [ 1, 2, 1]
+       ];
+
+  return( apply( GB, img) / sum( GB)); 
+}
+specialize int[.,.] gaussBlur( int[4288,2848] img); 
+
+int[.,.] gaussBlur25( int[.,.] img) 
+{
+  GB25 = [
+           [ 1, 4, 7, 4, 1],
+           [ 4, 20, 33, 20, 4],
+           [ 7, 33, 55, 33, 7],
+           [ 4, 20, 33, 20, 4],
+           [ 1, 4, 7, 4, 1]
+         ];
+  return( apply( GB25, img) / sum( GB25)); 
+}
+
+
+int[*], time timestamp( int[*] img)
+{
+  return( img, gettime());
+}
+
+int main()
+{
+  fprintf( stderr, "\nReading image ...\n");
+  img = FibreScanIntArray( stdin);
+  
+  fprintf( stderr, "\nApplying filter ...");
+  img, start = timestamp( img);
+#ifdef GAUSS
+  img = gaussBlur( img);
+#else if defined GAUSS25
+  img = gaussBlur25( img);
+#else
+  img = sobelEdges( img);
+#endif
+  img, end = timestamp( img);
+  fprintf( stderr, "  done after %fs\n", difftime( end, start));
+  
+  fprintf( stderr, "\nWriting result image ...\n");
+  
+  writeMatrix( img);
+  return( 0);
+}
+
+
+
