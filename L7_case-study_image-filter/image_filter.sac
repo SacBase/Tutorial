@@ -1,4 +1,4 @@
-use Structures: all;
+use Array: all;
 use StdIO: all ;
 use Clock: {time, gettime, difftime};
 
@@ -136,13 +136,15 @@ int main()
   
   fprintf( stderr, "\nApplying filter ...");
   img, start = timestamp( img);
+  for( i=0; i<10; i++) {
 #ifdef GAUSS
   img = gaussBlur( img);
-#else if defined GAUSS25
+#elif defined GAUSS25
   img = gaussBlur25( img);
 #else
   img = sobelEdges( img);
 #endif
+  }
   img, end = timestamp( img);
   fprintf( stderr, "  done after %fs\n", difftime( end, start));
   
