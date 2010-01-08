@@ -1,0 +1,24 @@
+use ScalarArith: all;
+use StdIO: all;
+
+int twice( int x)
+{
+  return( 2 * x);
+}
+
+double twice( double x)
+{
+  return( 2.0 * x);
+}
+
+int main()
+{
+  a = twice( 5);
+  print(a);
+
+  b = twice( 5.9);
+  print(b);
+
+  return(0);
+}
+

@@ -1,0 +1,18 @@
+use StdIO: all;
+
+typedef int myint;
+typedef float[100,100] real_matrix;
+typedef double[2] complex;
+
+int main()
+{
+  complex   c;
+  double[2] d;
+
+  c = (:complex) [1.2,2.3];
+  d = (:double[2]) c;
+  print( d);
+
+  return( 0);
+}
+

@@ -1,0 +1,21 @@
+use ScalarArith: all;
+use StdIO: all;
+
+int main()
+{
+  double x;
+  float y;
+  int z;
+
+  x = 2.3;
+  print(x);
+
+  y = tof( x);
+  print(y);
+
+  z = toi( y);
+  print(z);
+
+  return( z);
+}
+
