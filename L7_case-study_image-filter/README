@@ -9,20 +9,52 @@ This directory contains:
 
 To compile this program, run 
 
-  sac2c -D<filter> image_filter.sac -o image_filter
+  sac2c -D<filter> -D<clock> -D<format> image_filter.sac -o image_filter
 
-where <filter> is one of the following: SOBEL, GAUSS, GAUSS25. If no -D
-is given a Sobel filter will be used.
 
-The program reads an image in fibre format from stdin and writes
-the resulting image to stdout in simple matrix format. This
-format may be conveniently plotted using gnuplot. For example,
-after running the program:
+See below for description of available options:
 
-  ./image_filter < saclogo.fibre > saclogo-edges.dat
+<filter>: 
+-----------------------------------------------------------------------------
+  <filter> may be one of the following: SOBEL, GAUSS, GAUSS25. 
 
-display the image data using gnuplot:
+  If no filter is given a Sobel filter will be used.
+  
+<clock>:
+-----------------------------------------------------------------------------
+  <clock> may be one of the following: RTCLOCK, SIMPLECLOCK
 
-  gnuplot> plot "saclogo.dat" matrix with image
-  gnuplot> plot "saclogo-edges.dat" matrix with image
+  If no clock is specified, RTCLOCK will be used.
+
+  RTCLOCK may not be available on all systems. If you are running a
+  system where this is the case and this program fails to compile,
+  use -DSIMPLECLOCK. Measurement accuracy will be limited to whole
+  seconds.
+
+<format>:
+-----------------------------------------------------------------------------
+  <format> may be one of the following: PNG, RAWIMAGE
+
+  If no format is given, PNG will be used.
+
+  PNG:
+  The program reads an image in fibre format from stdin and writes
+  a PNG file named "result.png" into the current working directory.
+  
+  
+  RAWIMAGE:
+  The program reads an image in fibre format from stdin and writes
+  the resulting image to stdout in simple matrix format. This
+  format may be conveniently plotted using gnuplot. For example,
+  after running the program:
+  
+    ./image_filter < saclogo.fibre > saclogo-edges.dat
+  
+  display the image data using gnuplot:
+  
+    gnuplot> plot "saclogo.dat" matrix with image
+    gnuplot> plot "saclogo-edges.dat" matrix with image
+  
+
+
 

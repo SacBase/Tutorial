@@ -1,7 +1,36 @@
 use Array: all;
-use StdIO: all ;
+use StdIO: all;
+
+#ifndef RAWIMAGE
+use Color8: {newColor};
+use PNG: {drawArray};
+#endif
+
+#ifdef SIMPLECLOCK
 use Clock: {time, gettime, difftime};
 
+int[*], time timestamp( int[*] img)
+{
+  return( img, gettime());
+}
+
+#else /*SIMPLECLOCK*/
+use RTClock: {gettime};
+
+int[*], double timestamp( int[*] img)
+{
+  s, ns = gettime();
+  return( img, tod( s) + tod( ns) * 0.000000001d);
+}
+
+double difftime( double e, double s)
+{
+  return( e - s);
+}
+#endif /*SIMPLECLOCK*/
+
+
+#ifdef RAWIMAGE
 /*
  * Helper to write matrix to stdout in plain matrix format
  * The produced output (let's say m.dat) can be used with gnuplot like so:
@@ -9,7 +38,7 @@ use Clock: {time, gettime, difftime};
  * gnuplot> plot "m.dat" matrix with image
  *
  */
-void writeMatrix( int[.,.] m)
+void write( int[.,.] m)
 {
   for( y=0; y<shape(m)[1]; y++) {
     for( x=0; x<shape(m)[0]; x++) {
@@ -18,6 +47,18 @@ void writeMatrix( int[.,.] m)
     printf( "\n");
   }
 }
+
+#else /*RAWIMAGE*/
+/*
+ * Helper to write matrix to PNG file. The resulting will be called "result.png".
+ */
+void write( int[.,.] m)
+{
+  c = { i -> newColor( m[i], m[i], m[i])};
+  unused = drawArray( "result.png", c);
+}
+#endif /*RAWIMAGE*/
+
 
 /*
  * Cut off all values that are geq to a given max_val
@@ -124,11 +165,6 @@ int[.,.] gaussBlur25( int[.,.] img)
 }
 
 
-int[*], time timestamp( int[*] img)
-{
-  return( img, gettime());
-}
-
 int main()
 {
   fprintf( stderr, "\nReading image ...\n");
@@ -136,7 +172,7 @@ int main()
   
   fprintf( stderr, "\nApplying filter ...");
   img, start = timestamp( img);
-  for( i=0; i<10; i++) {
+  for( i=0; i<1; i++) {
 #ifdef GAUSS
   img = gaussBlur( img);
 #elif defined GAUSS25
@@ -146,11 +182,11 @@ int main()
 #endif
   }
   img, end = timestamp( img);
-  fprintf( stderr, "  done after %fs\n", difftime( end, start));
+  fprintf( stderr, "  finished after %fs\n", difftime( end, start));
   
   fprintf( stderr, "\nWriting result image ...\n");
   
-  writeMatrix( img);
+  write( img);
   return( 0);
 }
 
