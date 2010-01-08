@@ -65,6 +65,7 @@ void write( string fn, int[.,.] m)
  */
 void write( string fn, int[.,.] m)
 {
+  m = transpose( m);
   c = { i -> newColor( m[i], m[i], m[i])};
   unused = drawArray( fn, c);
 }
