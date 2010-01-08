@@ -1,11 +1,15 @@
+Image Filter Tutorial Application
+=============================================================================
 
 This directory contains:
  - example implementation of Sobel and Gauss image filters
  - sample image data as input in testimages.tar.bz2:
-     - hall.fibre (large, 4288x2848 pixels)
+     - sail.fibre (medium, 514x599 pixels)
+     - sail.dat (medium, same as above but in simple matrix format)
+     - sail.fibre (medium, same as above but in PNG format)
      - saclogo.fibre (small, 130x70 pixels)
      - saclogo.dat (same as above but in simple matrix format)
-
+     - saclogo.png (same as above but in PNG format)
 
 To compile this program, run 
 
@@ -38,17 +42,17 @@ See below for description of available options:
   If no format is given, PNG will be used.
 
   PNG:
-  The program reads an image in fibre format from stdin and writes
-  a PNG file named "result.png" into the current working directory.
+  The program reads an image in fibre format and writes
+  a PNG file named into the current working directory.
   
   
   RAWIMAGE:
-  The program reads an image in fibre format from stdin and writes
-  the resulting image to stdout in simple matrix format. This
+  The program reads an image in fibre format and writes
+  the resulting image to a file in simple matrix format. This
   format may be conveniently plotted using gnuplot. For example,
   after running the program:
   
-    ./image_filter < saclogo.fibre > saclogo-edges.dat
+    ./image_filter -o saclogo-edges < saclogo.fibre
   
   display the image data using gnuplot:
   

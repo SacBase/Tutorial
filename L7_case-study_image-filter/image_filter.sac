@@ -38,7 +38,7 @@ double difftime( double e, double s)
 
 #ifdef RAWIMAGE
 /*
- * Helper to write matrix to stdout in plain matrix format
+ * Helper to write matrix to file in plain matrix format
  * The produced output (let's say m.dat) can be used with gnuplot like so:
  *
  * gnuplot> plot "m.dat" matrix with image
