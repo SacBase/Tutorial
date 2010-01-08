@@ -1,6 +1,12 @@
 use Array: all;
 use StdIO: all;
+use CommandLine: {argc, argv};
+use String: {string};
 
+/*
+ * ========================================================================
+ * Helper functions                                                        
+ */
 #ifndef RAWIMAGE
 use Color8: {newColor};
 use PNG: {drawArray};
@@ -38,26 +44,55 @@ double difftime( double e, double s)
  * gnuplot> plot "m.dat" matrix with image
  *
  */
-void write( int[.,.] m)
+void write( string fn, int[.,.] m)
 {
+  err, f = fopen( fn, "w");
+  if( SysErr::fail( err)) {
+    RuntimeError::error( 1, "\nFailed to open file \"%s\" for writing.\n", fn);
+  }
   for( y=0; y<shape(m)[1]; y++) {
     for( x=0; x<shape(m)[0]; x++) {
-      printf( "%d ", m[[x,y]]);
+      fprintf( f, "%d ", m[[x,y]]);
     }
-    printf( "\n");
+    fprintf( f, "\n");
   }
+  fclose( f);
 }
 
 #else /*RAWIMAGE*/
 /*
  * Helper to write matrix to PNG file. The resulting will be called "result.png".
  */
-void write( int[.,.] m)
+void write( string fn, int[.,.] m)
 {
   c = { i -> newColor( m[i], m[i], m[i])};
-  unused = drawArray( "result.png", c);
+  unused = drawArray( fn, c);
 }
 #endif /*RAWIMAGE*/
+
+
+int[.,.] readImage( string fn)
+{
+  if( fn String::== "") {
+    res = FibreScanIntArray( stdin);
+  } 
+  else {
+    err, f = fopen( fn, "r");
+    if( SysErr::fail( err)) {
+      printf("\nFailed to open \"%s\", expecting data on stdin.\n", fn);
+      res = FibreScanIntArray( stdin);
+    } 
+    else {
+      res = FibreScanIntArray( f);
+      fclose( f);
+    }
+  }
+  return( res);
+}
+/*
+ * END OF Helper functions
+ * ========================================================================
+ */
 
 
 /*
@@ -167,12 +202,57 @@ int[.,.] gaussBlur25( int[.,.] img)
 
 int main()
 {
-  fprintf( stderr, "\nReading image ...\n");
-  img = FibreScanIntArray( stdin);
+/*
+ * ========================================================================
+ * Handling of Command Line Arguments 
+ */
+  itcount    = 1;
+  inputfile  = "";
+  outputfile = "result";
+
+  printf( "\nImage Filter (Tutorial Application)"
+          "\n==============================================================="
+          "\nUsage: %s -c <count> -i <input> -o <output> "
+          "\n <count>  : iteration count (default 1)"
+          "\n <input>  : name of input file in Fibre format (default: stdin)"
+          "\n <output> : name of output file (default: result[.png,.dat])"
+          "\n\n", argv( 0));
   
-  fprintf( stderr, "\nApplying filter ...");
+  for( i=1; i<argc()-1; i++) {
+    if( argv( i) String::== "-c") {
+      itcount = String::toi( argv( i+1));  
+    } 
+    if( argv( i) String::== "-o") {
+      outputfile = argv( i+1);
+    }
+    if( argv( i) String::== "-i") {
+      inputfile = argv( i+1);
+    }
+  }
+#ifdef RAWIMAGE
+  outputfile = outputfile String::+".dat";
+#else
+  outputfile = outputfile String::+".png";
+#endif
+  printf( "\n---------------------------------------------------------------"
+          "\nIterations: %d, Input: \"%s\", Output: \"%s\""
+          "\n---------------------------------------------------------------\n",
+          itcount, 
+          (inputfile String::== "") ?  "stdin" : inputfile, 
+          outputfile);
+/*
+ * END OF Handling of Command Line Arguments
+ * ========================================================================
+ */
+
+
+  fprintf( stderr, "\nReading image ...\n");
+
+  img = readImage( inputfile);
+  
+  fprintf( stderr, "\nApplying filter %d time(s)...", itcount);
   img, start = timestamp( img);
-  for( i=0; i<1; i++) {
+  for( i=0; i<itcount; i++) {
 #ifdef GAUSS
   img = gaussBlur( img);
 #elif defined GAUSS25
@@ -186,7 +266,7 @@ int main()
   
   fprintf( stderr, "\nWriting result image ...\n");
   
-  write( img);
+  write( outputfile, img);
   return( 0);
 }
 
