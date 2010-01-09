@@ -2,10 +2,6 @@ use Array: all;
 use Math: all;
 use StdIO: all;
 
-/*
- * This program relies on bug no 23 to be solved 8-(
- */
-
 int main()
 {
   a = min( reshape([3,0,5], []), 42);

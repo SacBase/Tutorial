@@ -1,0 +1,19 @@
+
+use StdIO: all;
+use Array: all;
+
+int main()
+{
+  vect1 = [0,1,2,3];
+  print( vect1);
+  vect2 = vect1 * 2;
+  print( vect2);
+
+  print( { iv -> [vect1[iv], vect2[iv]] });
+
+  array3d = genarray( [3,6], vect1);
+  print( array3d);
+
+  print( { [i] -> [array3d[[i]], array3d[[i]]] });
+  return(0);
+}

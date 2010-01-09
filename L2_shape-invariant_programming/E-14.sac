@@ -1,0 +1,17 @@
+
+use StdIO: all;
+use Array: all;
+
+int main()
+{
+  vect = [0,1,2,3];
+  arr3d = genarray( [3,6], vect);
+  print( arr3d);
+
+  print( { [i] -> take( [3,2], arr3d[[i]]) });
+
+  tmp = take( [2], { [i] -> arr3d[[...,i]] });
+  print( { [...,j] -> tmp[[j]] });
+ 
+  return(0);
+}

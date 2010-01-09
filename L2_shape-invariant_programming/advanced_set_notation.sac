@@ -5,7 +5,7 @@ int main()
 {
   vect = [0,1,2,3];
 
-  mat = { [.,i] -> vect[[i]]*4+vect };
+  mat = { [.,i] -> vect[[i]]*4 + vect };
   print( mat);
 
   arr3d = { [i] -> vect[[i]]*16 + mat};
