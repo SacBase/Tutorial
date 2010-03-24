@@ -1,0 +1,50 @@
+#define XRES 600
+#define YRES 400
+
+#define DEPTH 254
+
+use Structures: all;
+use SDLdisplay: all;
+use ArrayIO : all;
+
+use Fractal : all;
+
+
+
+/* Main ******************************************************************** */
+
+int main()
+{
+  
+  xc = -0.87591d;
+  yc = 0.20464d;
+  d = 0.53184d;
+
+#if 0
+  disp1 = initDisplay( [YRES,XRES]);
+#endif
+  disp2 = initDisplay( [YRES,XRES]);
+
+  cmin = toc( xc - 0.5d * d, yc - 0.5d * d);
+  cmax = toc( xc + 0.5d * d, yc + 0.5d * d);
+  
+  plane = genComplexArray( [YRES,XRES], cmin, cmax);
+  vals, zn = escapeTime( plane, DEPTH);
+                                      
+  nvals = normalizedIterationCount( vals, zn);
+
+#if 0
+  drawArray( disp1, intArrayToMonochrome( vals));
+#endif
+  drawArray( disp2, doubleArrayToRGB( nvals));
+
+  wait = StdIO::fgetc( StdIO::stdin);
+
+#if 0
+  destroyDisplay( disp1);
+#endif
+  destroyDisplay( disp2);
+
+  return(0);
+}
+
