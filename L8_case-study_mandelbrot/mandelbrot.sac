@@ -1,5 +1,5 @@
-#define XRES 600
-#define YRES 400
+#define XRES 800
+#define YRES 800
 
 #define DEPTH 254
 
@@ -30,9 +30,12 @@ int main()
                                       
   drawArray( disp1, intArrayToMonochrome( vals));
 
+printf("jsfdgjhfgsdjhg\n");
   wait = StdIO::fgetc( StdIO::stdin);
+printf("jsfdgjhfgsdjhg\n");
 
   destroyDisplay( disp1);
+printf("jsfdgjhfgsdjhg\n");
 
   return(0);
 }
