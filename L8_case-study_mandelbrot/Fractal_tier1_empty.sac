@@ -1,4 +1,4 @@
-module Fractal_v1;
+module Fractal_tier1;
 
 use Structures: all;
 use Numerical: all;

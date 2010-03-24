@@ -1,4 +1,4 @@
-module Fractal_tier1;
+module Fractal;
 
 use Structures: all;
 use Numerical: all;
@@ -84,4 +84,78 @@ Color8::color[.,.] intArrayToMonochrome( int[.,.] a)
 
   return( d);
 }
+
+/******************************************************************************
+ ******************************************************************************
+ ******************************************************************************
+ ******************************************************************************
+ *****************************************************************************/
+
+#if 0
+inline
+int, complex escapeTime(complex z, int depth)
+{
+  i=0; c=z;
+
+  while( (normSq( c) <= 4d) && (i <= depth)) {
+    c=c*c+z; i++;
+  }
+
+  return(i,c);
+}
+
+inline int[.,.], complex[.,.] escapeTime( complex[.,.] plane, int depth)
+{
+  escapes, values = with {
+                      ( . <= x <= .) {
+                        e,v = escapeTime( plane[x], depth);
+                      } : (e, v);
+                    } : ( genarray( shape( plane), 0),
+                          genarray( shape( plane), toc(0)));
+
+  return( escapes, values);
+}
+
+#endif
+
+inline
+double normalizedIterationCount(int n, complex zn)
+{
+  return( (normSq( zn) <= 4d) ? 0d : tod( n + 1) - log2( log2( norm( zn))));
+}
+
+#if 0
+inline
+double[*] normalizedIterationCount(int[*] n, complex[*] zn)
+{
+  return( where( (normSq( zn) <= 4d) , 0d , tod( n + 1) - log2( log2( norm( zn)))));
+}
+#else
+inline
+double[*] normalizedIterationCount(int[*] n, complex[*] zn)
+{
+  res = with {
+          ( .<= iv <= .) : (normSq( zn[iv]) <= 4d) ? 0d :
+                             tod( n + 1) - log2( log2( norm( zn[iv])));
+        } : genarray( shape(n), 0d);
+  return( res);
+}
+#endif
+
+
+inline
+Color8::color[.,.] doubleArrayToRGB( double[.,.] a)
+{
+  max = maxval( a);
+  min = minval( a);
+
+  scaled_vals = (a - min)/ (max-min);
+
+  rgbs = Color8::Hsb2Rgb(toi( scaled_vals * 360d), 60, 80);
+
+  return( rgbs);
+}
+
+
+
 
