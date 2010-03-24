@@ -1,0 +1,87 @@
+module Fractal_tier_1;
+
+use Structures: all;
+use Numerical: all;
+
+export all;
+
+
+/** <!--*******************************************************************-->
+ * 
+ * @fn : complex[.,.] genComplexArray( int[2] shp, complex cmin, complex cmax)
+ *
+ *   @brief generates an array of complex numbers with shape "shp" and 
+ *          linearly increasing/decreasing values between "cmin" and "cmax".
+ *          The element at index [0,0] should be "cmin".
+ *
+ *****************************************************************************/
+inline
+complex[.,.] genComplexArray( int[2] shp, complex cmin, complex cmax)
+{
+  res = with {
+          ( . <= iv <= .) : cmin + toc( (tod(iv) / tod(shp))  * todv(cmax-cmin));
+        } : genarray( shp, toc( 0,0));
+  return( res);
+}
+
+
+/** <!--*******************************************************************-->
+ * 
+ * @fn int escapeTime(complex z, int depth)
+ *
+ *   @brief iteratively computes c = c*c + z starting from c=z.
+ *          terminates either when |c| > 2 or depth iterations
+ *          have been performed.
+ *          NB: Besides "norm" there exists "normSq" which computes |c|^2.
+ *
+ *   @return number of iterations done
+ *****************************************************************************/
+inline
+int escapeTime(complex z, int depth)
+{
+  i=0; c=z;
+
+  while( (normSq( c) <= 4d) && (i <= depth)) {
+    c=c*c+z; i++;
+  }
+
+  return(i);
+}
+
+/** <!--*******************************************************************-->
+ *
+ * @fn int[*] escapeTime(complex[*] z, int depth)
+ *
+ *   @brief maps escapeTime to an entire array of complex numbers
+ *
+ *****************************************************************************/
+
+inline
+int[*] escapeTime( complex[*] plane, int depth)
+{
+  values = with {
+             ( . <= iv <= .) : escapeTime( plane[iv], depth);
+           } : genarray( shape( plane), 0);
+
+  return( values);
+}
+
+/** <!--*******************************************************************-->
+ *
+ * @fn color[.,.] intArrayToMonochrome( int[.,.] a)
+ *
+ *   @brief converts integer values into color values using
+ *          a logarithmic clut from black to red.
+ *****************************************************************************/
+inline
+Color8::color[.,.] intArrayToMonochrome( int[.,.] a)
+{
+  clut = genLogarithmicClut( 0.4d, 0.9d, Color8::black(), Color8::red());
+
+  d = with {
+        ( .<= iv <= .) : clut[ a[ iv]];
+      } : genarray( shape(a), Color8::black());
+
+  return( d);
+}
+

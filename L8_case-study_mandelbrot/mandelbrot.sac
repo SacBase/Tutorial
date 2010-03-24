@@ -7,7 +7,7 @@ use Structures: all;
 use SDLdisplay: all;
 use StdIO : all;
 
-use Fractal : all;
+use Fractal_tier1 : all;
 
 
 
@@ -30,12 +30,9 @@ int main()
                                       
   drawArray( disp1, intArrayToMonochrome( vals));
 
-printf("jsfdgjhfgsdjhg\n");
   wait = StdIO::fgetc( StdIO::stdin);
-printf("jsfdgjhfgsdjhg\n");
 
   destroyDisplay( disp1);
-printf("jsfdgjhfgsdjhg\n");
 
   return(0);
 }
