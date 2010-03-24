@@ -8,6 +8,7 @@ use SDLdisplay: all;
 use StdIO : all;
 
 use Fractal_tier1 : all;
+use Fractal_tier2 : all;
 
 
 
@@ -26,9 +27,18 @@ int main()
   cmax = toc( xc + 0.5d * d, yc + 0.5d * d);
   
   plane = genComplexArray( [YRES,XRES], cmin, cmax);
-  vals = escapeTime( plane, DEPTH);
-                                      
-  drawArray( disp1, intArrayToMonochrome( vals));
+
+  ts = escapeTime( plane, DEPTH);
+  vs  = escapeValue( plane, DEPTH);
+
+#ifdef TIER1
+
+  drawArray( disp1, intArrayToMonochrome( ts));
+#else
+
+  nvs = normalizedIterationCount( ts, vs);
+  drawArray( disp1, doubleArrayToRGB( nvs));
+#endif
 
   wait = StdIO::fgetc( StdIO::stdin);
 

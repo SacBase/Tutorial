@@ -1,4 +1,4 @@
-module Fractal;
+module Fractal_tier2;
 
 use Structures: all;
 use Numerical: all;
@@ -7,20 +7,17 @@ export all;
 
 /** <!--*******************************************************************-->
  *
- * @fn int, complex escapeTime(complex z, int depth)
+ * @fn complex escapeValue(complex z, int depth)
  *
  *   @brief iteratively computes c = c*c + z starting from c=z.
  *          terminates either when |c| > 2 or depth iterations
  *          have been performed.
  *          NB: Besides "norm" there exists "normSq" which computes |c|^2.
- *          NB2: same as in tier1 but returning iteration and final complex
- *               value now!
  *
- *   @return number of iterations done,
- *           final complex value
+ *   @return final complex value
  *****************************************************************************/
 inline
-int, complex escapeTime(complex z, int depth)
+complex escapeValue(complex z, int depth)
 {
   i=0; c=z;
 
@@ -28,27 +25,24 @@ int, complex escapeTime(complex z, int depth)
     c=c*c+z; i++;
   }
 
-  return(i,c);
+  return(c);
 }
 
 /** <!--*******************************************************************-->
  *
- * @fn int[*] escapeTime(complex[*] z, int depth)
+ * @fn complex[*] escapeValue(complex[*] z, int depth)
  *
- *   @brief maps escapeTime to an entire array of complex numbers
+ *   @brief maps escapeValue to an entire array of complex numbers
  *
  *****************************************************************************/
 inline
-int[.,.], complex[.,.] escapeTime( complex[.,.] plane, int depth)
+complex[.,.] escapeValue( complex[.,.] plane, int depth)
 {
-  escapes, values = with {
-                      ( . <= x <= .) {
-                        e,v = escapeTime( plane[x], depth);
-                      } : (e, v);
-                    } : ( genarray( shape( plane), 0),
-                          genarray( shape( plane), toc(0)));
+  values = with {
+             ( . <= x <= .) : escapeValue( plane[x], depth);
+           } : genarray( shape( plane), toc(0));
 
-  return( escapes, values);
+  return( values);
 }
 
 
@@ -56,59 +50,41 @@ int[.,.], complex[.,.] escapeTime( complex[.,.] plane, int depth)
  *
  * @fn double normalizedIterationCount(int n, complex zn)
  *
- *   @brief 
- *   @return
- *****************************************************************************/
-inline
-double normalizedIterationCount(int n, complex zn)
-{
-  return( (normSq( zn) <= 4d) ? 0d : tod( n + 1) - log2( log2( norm( zn))));
-}
-
-/** <!--*******************************************************************-->
+ *   @brief normalizes the iteration counts in "n" taking the distance of the 
+ *          corresponding final complex numbers from the origin into account.
+ *          For corresponding elements in "n" and "zn", we have:
+ *             0.0                          iff |zn| <= 2
+ *             (n+1) - log2( log2( |zn|))   otherwise
  *
- * @fn double normalizedIterationCount(int n, complex zn)
- *
- *   @brief 
- *   @return 
+ *   @return the normalized iteration counts
  *****************************************************************************/
-#if 0
 inline
 double[*] normalizedIterationCount(int[*] n, complex[*] zn)
 {
-  return( where( (normSq( zn) <= 4d) , 0d , tod( n + 1) - log2( log2( norm( zn)))));
+/**
+ * fill in here...
+ */
 }
-#else
-inline
-double[*] normalizedIterationCount(int[*] n, complex[*] zn)
-{
-  res = with {
-          ( .<= iv <= .) : (normSq( zn[iv]) <= 4d) ? 0d :
-                             tod( n + 1) - log2( log2( norm( zn[iv])));
-        } : genarray( shape(n), 0d);
-  return( res);
-}
-#endif
 
 
 /** <!--*******************************************************************-->
  *
  * @fn color[.,.] doubleArrayToRGB( double[.,.] a)
  *
- *   @brief 
- *   @return 
+ *   @brief transforms an array of doubles into RGB values, by 
+ *          FIRST scaling them into values between 0.0 and 360.0, and
+ *          THEN  using them as HSB angles to choose a color.
+ *          NB: Color8 provides a function Hsb2Rgb for the actual
+ *              conversion.
+ *  
+ *   @return RGB values
  *****************************************************************************/
 inline
 Color8::color[.,.] doubleArrayToRGB( double[.,.] a)
 {
-  max = maxval( a);
-  min = minval( a);
-
-  scaled_vals = (a - min)/ (max-min);
-
-  rgbs = Color8::Hsb2Rgb(toi( scaled_vals * 360d), 60, 80);
-
-  return( rgbs);
+/**
+ * fill in here...
+ */
 }
 
 
