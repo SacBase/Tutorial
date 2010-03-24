@@ -9,8 +9,9 @@ use StdIO : all;
 
 use Fractal_tier1 : all;
 use Fractal_tier2 : all;
+use stencil_module: all;
 
-
+#define TIER3
 
 /* Main ******************************************************************** */
 
@@ -33,12 +34,20 @@ int main()
 
 #ifdef TIER1
 
-  drawArray( disp1, intArrayToMonochrome( ts));
+  rgbs = intArrayToMonochrome( ts);
 #else
 
   nvs = normalizedIterationCount( ts, vs);
-  drawArray( disp1, doubleArrayToRGB( nvs));
+  rgbs = doubleArrayToRGB( nvs);
+  
 #endif
+
+#ifdef TIER3
+
+  rgbs = sobelEdges( gaussBlur( gaussBlur( rgbs)));
+#endif
+
+  drawArray( disp1, rgbs);
 
   wait = StdIO::fgetc( StdIO::stdin);
 

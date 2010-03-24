@@ -37,3 +37,5 @@ CHECKLOGFILE                = ./CHECKLOG
 #######################################################################################
 
 include $(SACBASE)/stdlib/Makefiles/Makefile_template.prg
+
+mandelbrot: libFractal_tier2Tree.so libFractal_tier1Tree.so
