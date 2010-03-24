@@ -11,7 +11,7 @@ endif
 #
 # Setup for Makefile.standard:
 #
-EXCLUDE_FILES               = Fractal_tier1_empty.sac
+EXCLUDE_FILES               = Fractal_tier1_empty.sac Fractal_tier2_empty.sac
 # TARGETDIR                   = .
 # LIBTARGETDIR                = .
 # INCTARGETDIR                = .
