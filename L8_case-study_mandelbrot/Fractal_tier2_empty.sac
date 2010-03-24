@@ -1,0 +1,116 @@
+module Fractal;
+
+use Structures: all;
+use Numerical: all;
+
+export all;
+
+/** <!--*******************************************************************-->
+ *
+ * @fn int, complex escapeTime(complex z, int depth)
+ *
+ *   @brief iteratively computes c = c*c + z starting from c=z.
+ *          terminates either when |c| > 2 or depth iterations
+ *          have been performed.
+ *          NB: Besides "norm" there exists "normSq" which computes |c|^2.
+ *          NB2: same as in tier1 but returning iteration and final complex
+ *               value now!
+ *
+ *   @return number of iterations done,
+ *           final complex value
+ *****************************************************************************/
+inline
+int, complex escapeTime(complex z, int depth)
+{
+  i=0; c=z;
+
+  while( (normSq( c) <= 4d) && (i <= depth)) {
+    c=c*c+z; i++;
+  }
+
+  return(i,c);
+}
+
+/** <!--*******************************************************************-->
+ *
+ * @fn int[*] escapeTime(complex[*] z, int depth)
+ *
+ *   @brief maps escapeTime to an entire array of complex numbers
+ *
+ *****************************************************************************/
+inline
+int[.,.], complex[.,.] escapeTime( complex[.,.] plane, int depth)
+{
+  escapes, values = with {
+                      ( . <= x <= .) {
+                        e,v = escapeTime( plane[x], depth);
+                      } : (e, v);
+                    } : ( genarray( shape( plane), 0),
+                          genarray( shape( plane), toc(0)));
+
+  return( escapes, values);
+}
+
+
+/** <!--*******************************************************************-->
+ *
+ * @fn double normalizedIterationCount(int n, complex zn)
+ *
+ *   @brief 
+ *   @return
+ *****************************************************************************/
+inline
+double normalizedIterationCount(int n, complex zn)
+{
+  return( (normSq( zn) <= 4d) ? 0d : tod( n + 1) - log2( log2( norm( zn))));
+}
+
+/** <!--*******************************************************************-->
+ *
+ * @fn double normalizedIterationCount(int n, complex zn)
+ *
+ *   @brief 
+ *   @return 
+ *****************************************************************************/
+#if 0
+inline
+double[*] normalizedIterationCount(int[*] n, complex[*] zn)
+{
+  return( where( (normSq( zn) <= 4d) , 0d , tod( n + 1) - log2( log2( norm( zn)))));
+}
+#else
+inline
+double[*] normalizedIterationCount(int[*] n, complex[*] zn)
+{
+  res = with {
+          ( .<= iv <= .) : (normSq( zn[iv]) <= 4d) ? 0d :
+                             tod( n + 1) - log2( log2( norm( zn[iv])));
+        } : genarray( shape(n), 0d);
+  return( res);
+}
+#endif
+
+
+/** <!--*******************************************************************-->
+ *
+ * @fn color[.,.] doubleArrayToRGB( double[.,.] a)
+ *
+ *   @brief 
+ *   @return 
+ *****************************************************************************/
+inline
+Color8::color[.,.] doubleArrayToRGB( double[.,.] a)
+{
+  max = maxval( a);
+  min = minval( a);
+
+  scaled_vals = (a - min)/ (max-min);
+
+  rgbs = Color8::Hsb2Rgb(toi( scaled_vals * 360d), 60, 80);
+
+  return( rgbs);
+}
+
+
+
+
