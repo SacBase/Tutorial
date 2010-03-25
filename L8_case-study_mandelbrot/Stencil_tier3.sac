@@ -1,4 +1,4 @@
-module stencil_module;
+module Stencil_tier3;
 
 use Array: all;
 use StdIO: all;
@@ -125,5 +125,12 @@ int[.,.] gaussBlur25( int[.,.] img)
            [ 1, 4, 7, 4, 1]
          ];
   return( apply( GB25, img) / sum( GB25)); 
+}
+
+Color8::color[.,.] gaussBlur25( Color8::color[.,.] img)
+{
+  int_res = { [.,.,i] -> gaussBlur25( (Color8::toi( img)[.,.,i])) };
+  res = { [x,y] -> Color8::newColor( int_res[x,y]) };
+  return( res);
 }
 

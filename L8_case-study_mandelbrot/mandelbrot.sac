@@ -9,9 +9,7 @@ use StdIO : all;
 
 use Fractal_tier1 : all;
 use Fractal_tier2 : all;
-use stencil_module: all;
-
-#define TIER3
+use Stencil_tier3 : all;
 
 /* Main ******************************************************************** */
 
@@ -44,7 +42,7 @@ int main()
 
 #ifdef TIER3
 
-  rgbs = sobelEdges( gaussBlur( gaussBlur( rgbs)));
+  rgbs = sobelEdges( gaussBlur( gaussBlur25( rgbs)));
 #endif
 
   drawArray( disp1, rgbs);
