@@ -70,13 +70,15 @@ int[*] escapeTime( complex[*] plane, int depth)
  *
  * @fn color[.,.] intArrayToMonochrome( int[.,.] a)
  *
- *   @brief converts integer values into color values using
- *          a logarithmic clut from black to red.
+ *   @brief converts non-negative integer values into color values using
+ *          a logarithmic 256 element clut from black to red.
  *****************************************************************************/
 inline
 Color8::color[.,.] intArrayToMonochrome( int[.,.] a)
 {
   clut = genLogarithmicClut( 0.4d, 0.9d, Color8::black(), Color8::red());
+
+  a = (a * 256) / maxval(a);
 
   d = with {
         ( .<= iv <= .) : clut[ a[ iv]];

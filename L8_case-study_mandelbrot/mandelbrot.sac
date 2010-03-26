@@ -1,7 +1,12 @@
-#define XRES 800
-#define YRES 800
+#define XRES 3
+#define YRES 3
+#define EXPAND 128
 
-#define DEPTH 254
+#define DEPTH 1024
+
+#ifndef TIER
+#define TIER 3
+#endif
 
 use Structures: all;
 use SDLdisplay: all;
@@ -10,6 +15,15 @@ use StdIO : all;
 use Fractal_tier1 : all;
 use Fractal_tier2 : all;
 use Stencil_tier3 : all;
+
+inline
+color[.,.] stretchRgb( color[.,.] pic, int stretch)
+{
+  res = with {
+          (. <= iv <= .): pic[ iv / stretch];
+        } : genarray( shape(pic) * stretch, black());
+  return( res);
+}
 
 /* Main ******************************************************************** */
 
@@ -20,36 +34,52 @@ int main()
   yc = 0.20464d;
   d = 0.53184d;
 
-  disp1 = initDisplay( [YRES,XRES]);
+  expand = EXPAND;
+  max_shape = [YRES,XRES] * expand;
+
+  disp = initMultiDisplay( [2,2], max_shape);
 
   cmin = toc( xc - 0.5d * d, yc - 0.5d * d);
   cmax = toc( xc + 0.5d * d, yc + 0.5d * d);
   
   plane = genComplexArray( [YRES,XRES], cmin, cmax);
 
-  ts = escapeTime( plane, DEPTH);
-  vs  = escapeValue( plane, DEPTH);
 
-#ifdef TIER1
+  while( expand >= 1) {
 
-  rgbs = intArrayToMonochrome( ts);
-#else
+    ts = escapeTime( plane, DEPTH);
 
-  nvs = normalizedIterationCount( ts, vs);
-  rgbs = doubleArrayToRGB( nvs);
+    rgbs = intArrayToMonochrome( ts);
+
+    drawArrayMulti( disp, stretchRgb( rgbs, expand), [0,0]);
+
+#if TIER >= 2
+    ts, vs = escapeTimeAndValue( plane, DEPTH);
+
+    nvs = normalizedIterationCount( ts, vs);
+    rgbs = doubleArrayToRGB( nvs);
   
+    drawArrayMulti( disp, stretchRgb( rgbs, expand), [1,0]);
+
+#if TIER >= 3
+
+    rgbs = gaussBlur( gaussBlur25( rgbs));
+
+    drawArrayMulti( disp, stretchRgb( rgbs, expand), [0,1]);
+
+    rgbs = sobelEdges( rgbs);
+
+    drawArrayMulti( disp, stretchRgb( rgbs, expand), [1,1]);
+#endif
 #endif
 
-#ifdef TIER3
-
-  rgbs = sobelEdges( gaussBlur( gaussBlur25( rgbs)));
-#endif
-
-  drawArray( disp1, rgbs);
+    expand = expand / 2;
+    plane = genComplexArray( 2*shape(plane), cmin, cmax);
+  }
 
   wait = StdIO::fgetc( StdIO::stdin);
 
-  destroyDisplay( disp1);
+  destroyDisplay( disp);
 
   return(0);
 }

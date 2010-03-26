@@ -16,8 +16,7 @@ export all;
  *
  *   @return final complex value
  *****************************************************************************/
-inline
-complex escapeValue(complex z, int depth)
+int, complex escapeTimeAndValue(complex z, int depth)
 {
   i=0; c=z;
 
@@ -25,7 +24,7 @@ complex escapeValue(complex z, int depth)
     c=c*c+z; i++;
   }
 
-  return(c);
+  return(i, c);
 }
 
 /** <!--*******************************************************************-->
@@ -36,13 +35,21 @@ complex escapeValue(complex z, int depth)
  *
  *****************************************************************************/
 inline
-complex[.,.] escapeValue( complex[.,.] plane, int depth)
+int[.,.], complex[.,.] escapeTimeAndValue( complex[.,.] plane, int depth)
 {
+  times = with {
+            ( . <= x <= .) {
+              t, v = escapeTimeAndValue( plane[x], depth);
+            } : t;
+          } : genarray( shape( plane), 0);
+
   values = with {
-             ( . <= x <= .) : escapeValue( plane[x], depth);
+             ( . <= x <= .) {
+               t, v = escapeTimeAndValue( plane[x], depth);
+             } : v;
            } : genarray( shape( plane), toc(0));
 
-  return( values);
+  return( times, values);
 }
 
 

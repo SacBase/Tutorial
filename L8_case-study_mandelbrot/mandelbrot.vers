@@ -1,4 +1,4 @@
-t1 : -DTIER1
-t2 : -DTIER2
-t3 : -DTIER3
+t1 : -DTIER=1
+t2 : -DTIER=2
+t3 : -DTIER=3
 

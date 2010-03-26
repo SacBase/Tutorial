@@ -1,0 +1,70 @@
+#define XRES 400
+#define YRES 400
+
+#define DEPTH 256
+
+#ifndef TIER
+#define TIER 1
+#endif
+
+use Structures: all;
+use SDLdisplay: all;
+use StdIO : all;
+
+use Fractal_tier1 : all;
+use Fractal_tier2 : all;
+use Stencil_tier3 : all;
+
+/* Main ******************************************************************** */
+
+int main()
+{
+  
+  xc = -0.87591d;
+  yc = 0.20464d;
+  d = 0.53184d;
+
+  expand = EXPAND;
+  max_shape = [YRES,XRES] * expand;
+
+  disp = initMultiDisplay( [2,2], max_shape);
+
+  cmin = toc( xc - 0.5d * d, yc - 0.5d * d);
+  cmax = toc( xc + 0.5d * d, yc + 0.5d * d);
+  
+  plane = genComplexArray( [YRES,XRES], cmin, cmax);
+
+
+  ts = escapeTime( plane, DEPTH);
+
+  rgbs = intArrayToMonochrome( ts);
+
+  drawArrayMulti( disp, rgbs, [0,0]);
+
+#if TIER >= 2
+  ts, vs = escapeTimeAndValue( plane, DEPTH);
+
+  nvs = normalizedIterationCount( ts, vs);
+  rgbs = doubleArrayToRGB( nvs);
+  
+  drawArrayMulti( disp, rgbs, [1,0]);
+
+#if TIER >= 3
+
+  rgbs = gaussBlur( gaussBlur25( rgbs));
+
+  drawArrayMulti( disp, stretchRgb( rgbs, expand), [0,1]);
+
+  rgbs = sobelEdges( rgbs);
+
+  drawArrayMulti( disp, rgbs, [1,1]);
+#endif
+#endif
+
+  wait = StdIO::fgetc( StdIO::stdin);
+
+  destroyDisplay( disp);
+
+  return(0);
+}
+
