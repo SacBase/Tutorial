@@ -78,7 +78,7 @@ Color8::color[.,.] intArrayToMonochrome( int[.,.] a)
 {
   clut = genLogarithmicClut( 0.4d, 0.9d, Color8::black(), Color8::red());
 
-  a = (a * 256) / maxval(a);
+  a = (a * 255) / maxval(a);
 
   d = with {
         ( .<= iv <= .) : clut[ a[ iv]];
