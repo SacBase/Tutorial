@@ -24,10 +24,7 @@ int main()
   yc = 0.20464d;
   d = 0.53184d;
 
-  expand = EXPAND;
-  max_shape = [YRES,XRES] * expand;
-
-  disp = initMultiDisplay( [2,2], max_shape);
+  disp = initMultiDisplay( [2,2], [YRES,XRES]);
 
   cmin = toc( xc - 0.5d * d, yc - 0.5d * d);
   cmax = toc( xc + 0.5d * d, yc + 0.5d * d);
