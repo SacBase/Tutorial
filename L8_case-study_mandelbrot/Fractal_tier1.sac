@@ -12,14 +12,16 @@ export all;
  *
  *   @brief generates an array of complex numbers with shape "shp" and 
  *          linearly increasing/decreasing values between "cmin" and "cmax".
- *          The element at index [0,0] should be "cmin".
+ *          The element at index [0,0] should be "cmin". Increases in the
+ *          2nd index (!) should reflect increases in the real values!
  *
  *****************************************************************************/
 inline
 complex[.,.] genComplexArray( int[2] shp, complex cmin, complex cmax)
 {
   res = with {
-          ( . <= iv <= .) : cmin + toc( (tod(iv) / tod(shp))  * todv(cmax-cmin));
+          ( . <= iv <= .) : cmin + toc( reverse( (tod(iv) / tod(shp))
+                                                 * reverse( todv(cmax-cmin))));
         } : genarray( shp, toc( 0,0));
   return( res);
 }

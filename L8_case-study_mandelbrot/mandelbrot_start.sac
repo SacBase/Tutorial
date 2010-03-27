@@ -1,7 +1,7 @@
-#define XRES 400
-#define YRES 400
+#define XRES 384
+#define YRES 256
 
-#define DEPTH 256
+#define DEPTH 1024
 
 #ifndef TIER
 #define TIER 1
@@ -19,46 +19,45 @@ use Stencil_tier3 : all;
 
 int main()
 {
-  
-  xc = -0.87591d;
-  yc = 0.20464d;
-  d = 0.53184d;
-
   disp = initMultiDisplay( [2,2], [YRES,XRES]);
 
-  cmin = toc( xc - 0.5d * d, yc - 0.5d * d);
-  cmax = toc( xc + 0.5d * d, yc + 0.5d * d);
+  cmin = toc( -2.2, 1.0);
+  cmax = toc( 0.8, -1.0);
   
-  plane = genComplexArray( [YRES,XRES], cmin, cmax);
+  while( true) {
+    plane = genComplexArray( [YRES,XRES], cmin, cmax);
 
+    ts = escapeTime( plane, DEPTH);
 
-  ts = escapeTime( plane, DEPTH);
+    rgbs = intArrayToMonochrome( ts);
 
-  rgbs = intArrayToMonochrome( ts);
-
-  drawArrayMulti( disp, rgbs, [0,0]);
+    drawArrayMulti( disp, rgbs, [0,0]);
 
 #if TIER >= 2
-  ts, vs = escapeTimeAndValue( plane, DEPTH);
+    ts, vs = escapeTimeAndValue( plane, DEPTH);
 
-  nvs = normalizedIterationCount( ts, vs);
-  rgbs = doubleArrayToRGB( nvs);
+    nvs = normalizedIterationCount( ts, vs);
+    rgbs = doubleArrayToRGB( nvs);
   
-  drawArrayMulti( disp, rgbs, [1,0]);
+    drawArrayMulti( disp, rgbs, [0,1]);
 
 #if TIER >= 3
 
-  rgbs = gaussBlur( gaussBlur25( rgbs));
+    rgbs = gaussBlur( gaussBlur25( rgbs));
 
-  drawArrayMulti( disp, stretchRgb( rgbs, expand), [0,1]);
+    drawArrayMulti( disp, stretchRgb( rgbs, expand), [1,0]);
 
-  rgbs = sobelEdges( rgbs);
+    rgbs = sobelEdges( rgbs);
 
-  drawArrayMulti( disp, rgbs, [1,1]);
+    drawArrayMulti( disp, rgbs, [1,1]);
 #endif
 #endif
 
-  wait = StdIO::fgetc( StdIO::stdin);
+    q, zoom_coords = getSelectionMulti( disp, [2,2]);
+    cmin = plane[ reverse( 2 * zoom_coords[[0]])];
+    cmax = plane[ reverse( 2 * zoom_coords[[1]])];
+    expand = EXPAND;
+  }
 
   destroyDisplay( disp);
 

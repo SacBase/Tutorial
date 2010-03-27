@@ -1,8 +1,6 @@
-#define XRES 3
-#define YRES 3
-#define EXPAND 128
-
-#define INTERACTIVE_ZOOM
+#define XRES 6
+#define YRES 4
+#define EXPAND 64
 
 #define DEPTH 1024
 
@@ -31,23 +29,16 @@ color[.,.] stretchRgb( color[.,.] pic, int stretch)
 
 int main()
 {
-  
-  xc = -0.87591d;
-  yc = 0.20464d;
-  d = 0.53184d;
-
   expand = EXPAND;
   max_shape = [YRES,XRES] * expand;
 
   disp = initMultiDisplay( [2,2], max_shape);
 
-  cmin = toc( xc - 0.5d * d, yc - 0.5d * d);
-  cmax = toc( xc + 0.5d * d, yc + 0.5d * d);
+  cmin = toc( -2.2, 1.0);
+  cmax = toc( 0.8, -1.0);
   
 
-#ifdef INTERACTIVE_ZOOM
   while( true) {
-#endif /* INTERACTIVE_ZOOM */
     plane = genComplexArray( [YRES,XRES], cmin, cmax);
 
     while( expand >= 1) {
@@ -63,13 +54,13 @@ int main()
       nvs = normalizedIterationCount( ts, vs);
       rgbs = doubleArrayToRGB( nvs);
     
-      drawArrayMulti( disp, stretchRgb( rgbs, expand), [1,0]);
+      drawArrayMulti( disp, stretchRgb( rgbs, expand), [0,1]);
   
 #if TIER >= 3
   
       rgbs = gaussBlur( gaussBlur25( rgbs));
   
-      drawArrayMulti( disp, stretchRgb( rgbs, expand), [0,1]);
+      drawArrayMulti( disp, stretchRgb( rgbs, expand), [1,0]);
   
       rgbs = sobelEdges( rgbs);
   
@@ -81,15 +72,11 @@ int main()
       plane = genComplexArray( 2*shape(plane), cmin, cmax);
     }
 
-#ifdef INTERACTIVE_ZOOM
     q, zoom_coords = getSelectionMulti( disp, [2,2]);
     cmin = plane[ reverse( 2 * zoom_coords[[0]])];
     cmax = plane[ reverse( 2 * zoom_coords[[1]])];
     expand = EXPAND;
   }
-#else /* INTERACTIVE_ZOOM */
-  wait = StdIO::fgetc( StdIO::stdin);
-#endif /* INTERACTIVE_ZOOM */
 
   destroyDisplay( disp);
 
