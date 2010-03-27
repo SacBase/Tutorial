@@ -21,11 +21,11 @@ int main()
 {
   disp = initMultiDisplay( [2,2], [YRES,XRES]);
 
-  cmin = toc( -2.2, 1.0);
-  cmax = toc( 0.8, -1.0);
+  cmin = [toc( -2.2, 1.0)];
+  cmax = [toc( 0.8, -1.0)];
   
   while( true) {
-    plane = genComplexArray( [YRES,XRES], cmin, cmax);
+    plane = genComplexArray( [YRES,XRES], cmin[[0]], cmax[[0]]);
 
     ts = escapeTime( plane, DEPTH);
 
@@ -54,8 +54,13 @@ int main()
 #endif
 
     q, zoom_coords = getSelectionMulti( disp, [2,2]);
-    cmin = plane[ zoom_coords[[0]]];
-    cmax = plane[ zoom_coords[[1]]];
+    if (all( zoom_coords >= 0)) {
+      cmin = [plane[ zoom_coords[[0]]]] ++ cmin;
+      cmax = [plane[ zoom_coords[[1]]]] ++ cmax;
+    } else {
+      cmin = all( shape(cmin) > 1) ? drop( [1], cmin) : cmin;
+      cmax = all( shape(cmax) > 1) ? drop( [1], cmax) : cmax;
+    }
   }
 
   destroyDisplay( disp);
