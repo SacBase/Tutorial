@@ -45,7 +45,7 @@ int main()
 
     rgbs = gaussBlur( gaussBlur25( rgbs));
 
-    drawArrayMulti( disp, stretchRgb( rgbs, expand), [1,0]);
+    drawArrayMulti( disp, rgbs, [1,0]);
 
     rgbs = sobelEdges( rgbs);
 
