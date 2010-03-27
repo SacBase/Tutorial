@@ -29,19 +29,18 @@ color[.,.] stretchRgb( color[.,.] pic, int stretch)
 
 int main()
 {
-  expand = EXPAND;
-  max_shape = [YRES,XRES] * expand;
-
-  disp = initMultiDisplay( [2,2], max_shape);
+  disp = initMultiDisplay( [2,2], EXPAND * [YRES,XRES] );
 
   cmin = toc( -2.2, 1.0);
   cmax = toc( 0.8, -1.0);
-  
 
   while( true) {
-    plane = genComplexArray( [YRES,XRES], cmin, cmax);
+    expand = EXPAND;
+    cur_shape = [YRES,XRES];
 
     while( expand >= 1) {
+      plane = genComplexArray( cur_shape, cmin, cmax);
+
       ts = escapeTime( plane, DEPTH);
   
       rgbs = intArrayToMonochrome( ts);
@@ -69,13 +68,12 @@ int main()
 #endif /* TIER >= 2 */
   
       expand = expand / 2;
-      plane = genComplexArray( 2*shape(plane), cmin, cmax);
+      cur_shape = 2 * cur_shape;
     }
 
     q, zoom_coords = getSelectionMulti( disp, [2,2]);
-    cmin = plane[ reverse( 2 * zoom_coords[[0]])];
-    cmax = plane[ reverse( 2 * zoom_coords[[1]])];
-    expand = EXPAND;
+    cmin = plane[ zoom_coords[[0]]];
+    cmax = plane[ zoom_coords[[1]]];
   }
 
   destroyDisplay( disp);

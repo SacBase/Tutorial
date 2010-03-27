@@ -54,9 +54,8 @@ int main()
 #endif
 
     q, zoom_coords = getSelectionMulti( disp, [2,2]);
-    cmin = plane[ reverse( 2 * zoom_coords[[0]])];
-    cmax = plane[ reverse( 2 * zoom_coords[[1]])];
-    expand = EXPAND;
+    cmin = plane[ zoom_coords[[0]]];
+    cmax = plane[ zoom_coords[[1]]];
   }
 
   destroyDisplay( disp);
