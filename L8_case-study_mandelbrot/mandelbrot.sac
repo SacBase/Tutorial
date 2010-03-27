@@ -38,7 +38,7 @@ int main()
     expand = EXPAND;
     cur_shape = [YRES,XRES];
 
-    while( expand >= 1) {
+    do {
       plane = genComplexArray( cur_shape, cmin, cmax);
 
       ts = escapeTime( plane, DEPTH);
@@ -69,7 +69,7 @@ int main()
   
       expand = expand / 2;
       cur_shape = 2 * cur_shape;
-    }
+    } while ( expand >= 1);
 
     q, zoom_coords = getSelectionMulti( disp, [2,2]);
     cmin = plane[ zoom_coords[[0]]];
