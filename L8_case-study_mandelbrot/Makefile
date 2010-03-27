@@ -2,7 +2,7 @@
 #
 # General Setup:
 #
-SAC2CFLAGS = -v 1 -O3
+SAC2CFLAGS = -v 1 -O3 -nophm
 
 ifdef EXCLUDE_ERRORS
 SAC2CFLAGS += -DEXCLUDE_ERRORS
