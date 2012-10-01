@@ -73,6 +73,7 @@ int[.,.] apply( int[.,.] kernel, int[.,.] img)
 
 /* Stencil operations ****************************************************** */
 
+inline
 int[.,.] sobelEdges( int[.,.] img) 
 {
   SY = [
@@ -88,6 +89,7 @@ int[.,.] sobelEdges( int[.,.] img)
   return( thrs( resX + resY, 255));
 }
 
+inline
 Color8::color[.,.] sobelEdges( Color8::color[.,.] img)
 {
   int_res = { [.,.,i] -> sobelEdges( (Color8::toi( img)[.,.,i])) };
@@ -97,6 +99,7 @@ Color8::color[.,.] sobelEdges( Color8::color[.,.] img)
 
 
 
+inline
 int[.,.] gaussBlur( int[.,.] img) 
 {
   GB = [ 
@@ -108,6 +111,7 @@ int[.,.] gaussBlur( int[.,.] img)
   return( apply( GB, img) / sum( GB)); 
 }
 
+inline
 Color8::color[.,.] gaussBlur( Color8::color[.,.] img)
 {
   int_res = { [.,.,i] -> gaussBlur( (Color8::toi( img)[.,.,i])) };
@@ -115,6 +119,7 @@ Color8::color[.,.] gaussBlur( Color8::color[.,.] img)
   return( res);
 }
 
+inline
 int[.,.] gaussBlur25( int[.,.] img) 
 {
   GB25 = [
@@ -127,6 +132,7 @@ int[.,.] gaussBlur25( int[.,.] img)
   return( apply( GB25, img) / sum( GB25)); 
 }
 
+inline
 Color8::color[.,.] gaussBlur25( Color8::color[.,.] img)
 {
   int_res = { [.,.,i] -> gaussBlur25( (Color8::toi( img)[.,.,i])) };
