@@ -9,8 +9,8 @@ int main()
   complex   c;
   double[2] d;
 
-  c = (:complex) [1.2,2.3];
-  d = (:double[2]) c;
+  c = (complex) [1.2,2.3];
+  d = (double[2]) c;
   print( d);
 
   return( 0);
