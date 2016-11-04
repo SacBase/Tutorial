@@ -1,14 +1,15 @@
 #define XRES 6
 #define YRES 4
-#define EXPAND 64
+#define EXPAND 128
 
-#define DEPTH 1024
+#define DEPTH 2048
 
 use Structures: all;
 use SDLdisplay: all;
 use StdIO : all;
 
 use Fractal_tier1 : all;
+use Fractal_tier2 : all;
 
 inline
 color[.,.] stretchRgb( color[.,.] pic, int stretch)
@@ -35,9 +36,10 @@ int main()
     do {
       plane = genComplexArray( cur_shape, cmin[[0]], cmax[[0]]);
 
-      ts = escapeTime( plane, DEPTH);
+      ts, vs = escapeTimeAndValue( plane, DEPTH);
   
-      rgbs = intArrayToMonochrome( ts);
+      nvs = normalizedIterationCount( ts, vs);
+      rgbs = doubleArrayToRGB( nvs);
   
       drawArray( disp, stretchRgb( rgbs, expand));
   
@@ -45,9 +47,10 @@ int main()
       cur_shape = 2 * cur_shape;
     } while ( expand >= 1);
 
-#if 0
+#if 1
     zoom_coords = getSelection( disp);
-    if (all( zoom_coords >= 0)) {
+    
+    if (all( (zoom_coords[1] - zoom_coords[0]) > 0)) {
       cmin = [plane[ zoom_coords[[0]]]] ++ cmin;
       cmax = [plane[ zoom_coords[[1]]]] ++ cmax;
     } else {
