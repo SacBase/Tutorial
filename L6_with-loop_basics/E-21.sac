@@ -1,0 +1,14 @@
+use StdIO: all;
+use Array: all;
+
+int main()
+{
+  a = with {
+        ( . <= [i,j] <= .) : (i+j) % 10 ;
+      } : genarray( [10,10], 0);
+
+  print(a);
+
+  return(0);
+}
+

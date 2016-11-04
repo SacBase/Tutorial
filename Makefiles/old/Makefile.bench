@@ -1,0 +1,62 @@
+#######################################################################################
+#
+# variables - mandatory:
+# ======================
+#
+# variables - optional:
+# =====================
+# $(TIMEFILE)		%.time		time-file to be used
+# $(INPSDIR)		.		directory where standard-time-file is searched
+#
+# standard targets:
+# =================
+#
+#######################################################################################
+
+
+
+ifndef BENCHMKFILE
+BENCHMKFILE = "already included"
+
+ifndef BENCHMARK
+BENCHMARK = $(PARENT_$*)
+endif
+
+ifndef STDTIMECALL
+STDTIMECALL = "$${SACBASE}/stdlib/Scripts/bench -r1"
+endif
+
+include $(SACBASE)/stdlib/Makefiles/Makefile.run
+include $(SACBASE)/stdlib/Makefiles/Makefile.Config
+
+
+%.bench: .%.r $(INPSDIR)/%.time
+	@ $(RM) $@
+	@ $(ECHO) "Host: " `hostname` >> $@
+	@ $(ECHO) "System: " `uname -a` >> $@
+	@ $(ECHO) "System-Usage: (calling vmstat 4 3)" >> $@
+	@ vmstat 4 3 >> $@
+	@ $(ECHO) "" >> $@
+	@ if [ -f $*.compileLog ]; then \
+		cat $*.compileLog >> $@; \
+	  elif [ -f .$*.saclog ]; then \
+	  	cat .$*.saclog >> $@; \
+	  else $(ECHO) "No Compiler-Information available (no $*.compileLog or .$*.saclog found)" >> $@; fi
+	@ if [ "$(TIMEFILE)x" != "x" ]; then \
+		useTimeFile=$(TIMEFILE); \
+	else    useTimeFile=$(INPSDIR)/$*.time; fi; \
+	while read ftimecall; do \
+		while read frun; do \
+			call=`eval echo $${ftimecall}`; \
+			$${call} -n $* $${frun} >> $@; \
+		done < .$*.r; \
+	done < $${useTimeFile};
+
+$(INPSDIR)/%.time:
+	@ if [ "$(TIMEFILE)x" != "x" ]; then \
+		$(LN) $(TIMEFILE) $@; \
+	elif [ -f $(INPSDIR)/$(BENCHMARK).time ]; then \
+		$(LN) $(BENCHMARK).time $@; \
+	else echo $(STDTIMECALL) > $@; fi
+
+endif

@@ -1,0 +1,30 @@
+use StdIO: all;
+use Array: all;
+
+/*
+ * NB: do compile with the option       -check c !
+ *     you may use the compiler option  -DGENERATOR_RANGE=GENERATOR_R1  !
+ */
+
+#define GENERATOR_R1 ( [-2] <= iv < [3])
+#define GENERATOR_R2 ( [0]  <= iv < [8])
+#define GENERATOR_R3 ( [6]  <= iv < [5])
+#define GENERATOR_R4 ( [8]  <= iv < [5])
+#define GENERATOR_R5 ( [6]  <= iv < [0])
+
+#ifndef GENERATOR_RANGE
+#define GENERATOR_RANGE GENERATOR_R3
+#endif
+
+int main()
+{
+  a = with {
+        GENERATOR_RANGE : 42;
+      } : genarray( [7], 0);
+
+  print(a);
+
+  return(0);
+}
+
+

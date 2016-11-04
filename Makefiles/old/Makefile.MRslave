@@ -1,0 +1,202 @@
+#######################################################################################
+#
+# This makefile is parameterized by the following variables:
+#
+#   DEMOS     - only if this variable is set to "yes" the demos will be compiled
+#               too
+#   MT        - only if DEMOS is set to "yes" and this var is set to "yes" too,
+#               the mt versions will be generated and run
+#             
+#   SACREV    - revision of sac svn to use for this masterrun
+#   SAC2CREV  - revision of sac2c svn to use for this masterrun
+#   STDLIBREV - revision of stdlib svn to use for this masterrun
+#
+#######################################################################################
+
+
+ifeq ("$(TMPDIR)", "")
+    TMPDIR     := $(shell mktemp -d /tmp/MASTERR_XXXXXXXXXX)
+endif
+ifeq ("$(LOGDIR)", "")
+    LOGDIR     := $(shell mktemp -d $(TMPDIR)/LOGS_XXXXXXXXXX)
+endif
+
+export SACBASE := $(TMPDIR)
+export SAC2CBASE := ${SACBASE}/sac2c
+export PATH := ${PATH}:${SAC2CBASE}/bin
+
+MAKEARGS = TMPDIR=$(TMPDIR) LOGDIR=$(LOGDIR)
+
+ifeq ("$(HOST)", "obelix")
+  JOPT := -j
+else
+  JOPT :=
+endif
+
+SACREVX    := 
+SAC2CREVX  := 
+STDLIBREVX := 
+
+ifneq ("$(SACREV)", "")
+	SACREVX	 := -r $(SACREV)
+endif
+ifneq ("$(SAC2CREV)", "")
+	SAC2CREVX := -r $(SAC2CREV)
+endif
+ifneq ("$(STDLIBREV)", "")
+	STDLIBREVX := -r $(STDLIBREV)
+endif
+
+SACREVSET := $(SAC2CREV):$(STDLIBREV):$(SACREV)
+
+MASTERBASE := sac@berlix.stca.herts.ac.uk
+URL_SAC2C  := svn+ssh://svn@svn.sac-home.org/repositories/sac/sac2c/trunk
+URL_STDLIB := svn+ssh://svn@svn.sac-home.org/repositories/sac/stdlib/trunk
+URL_SAC    := svn+ssh://svn@svn.sac-home.org/repositories/sac/sac/trunk
+
+CONFIGURE  := ./configure
+#LOGDIR     := $(HOME)/LOGS
+SCP        := scp
+SSH        := ssh -x $(MASTERBASE)
+RM         := rm -rf
+
+
+.PHONY: run update sac2c_devel sac2c_prod stdlib demos devel prod mail save_rev_number
+
+all: 
+	cp Makefile $(TMPDIR)/
+	$(MAKE) -C $(TMPDIR) $(MAKEARGS) run >$(LOGDIR)/LOG.out 2>&1
+	cp $(TMPDIR)/stdlib/Makefiles/Makefile.MRslave Makefile
+	$(MAKE) -C $(TMPDIR) $(MAKEARGS) rm_srcs
+
+
+run: 
+	$(MAKE) -C $(TMPDIR) $(MAKEARGS) update 
+	-$(MAKE) -C $(TMPDIR) $(MAKEARGS) proddevel
+	$(MAKE) -C $(TMPDIR) $(MAKEARGS) ship_results
+
+
+proddevel: prod devel
+
+clean_logs:
+	rm -rf $(LOGDIR)/LOG_*
+	rm -rf $(LOGDIR)/REV_*
+
+clean_srcs:
+	$(MAKE) $(JOPT) -C $(TMPDIR)/sac2c $(MAKEARGS) TARGET="clean" clean
+	$(MAKE) $(JOPT) -C $(TMPDIR)/stdlib $(MAKEARGS) TARGET="clean" clean
+	$(MAKE) $(JOPT) -C $(TMPDIR)/sac/demos $(MAKEARGS) TARGET="clean" MAKE_MT_ALSO=yes clean
+	$(MAKE) $(JOPT) -C $(TMPDIR)/sac/tutorial $(MAKEARGS) TARGET="clean" MAKE_MT_ALSO=yes clean
+	$(MAKE) $(JOPT) -C $(TMPDIR)/sac/apex $(MAKEARGS) TARGET="clean" MAKE_MT_ALSO=yes clean
+	$(MAKE) $(JOPT) -C $(TMPDIR)/sac/testsuite $(MAKEARGS) TARGET="clean" MAKE_MT_ALSO=yes clean
+
+rm_srcs:
+	$(RM) $(TMPDIR)/sac2c
+	$(RM) $(TMPDIR)/stdlib
+	$(RM) $(TMPDIR)/sac
+	$(RM) $(TMPDIR)
+
+update: download_sac download_sac2c download_stdlib save_rev_number
+
+save_rev_number: 
+	echo $(SACREVSET) >$(LOGDIR)/REV
+	echo $(SAC2CREV)  >$(LOGDIR)/REVno_sac2c
+	echo $(STDLIBREV) >$(LOGDIR)/REVno_stdlib
+	echo $(SACREV)    >$(LOGDIR)/REVno_sac
+
+download_sac:
+	svn co $(URL_SAC2C)  $(SAC2CREVX)  $(TMPDIR)/sac2c | tail -1 >$(LOGDIR)/REV_sac2c
+
+download_stdlib:
+	svn co $(URL_STDLIB) $(STDLIBREVX) $(TMPDIR)/stdlib | tail -1 >$(LOGDIR)/REV_stdlib
+
+download_sac2c:
+	svn co $(URL_SAC)    $(SACREVX)    $(TMPDIR)/sac | tail -1 >$(LOGDIR)/REV_sac
+
+devel:
+	$(MAKE) -C $(TMPDIR) $(MAKEARGS) sac2c_devel
+	$(MAKE) -C $(TMPDIR) $(MAKEARGS) stdlib VERSION=std
+	$(MAKE) -C $(TMPDIR) $(MAKEARGS) demos VERSION=std
+
+sac2c_devel:
+	cd $(TMPDIR)/sac2c; $(CONFIGURE)
+	$(MAKE) -C $(TMPDIR)/sac2c TARGET="clean" clean
+	$(MAKE) -C $(TMPDIR)/sac2c HIDE="" $(JOPT) devel >$(LOGDIR)/LOG_sac2c_std 2>&1
+
+
+prod:
+	$(MAKE) -C $(TMPDIR) $(MAKEARGS) sac2c_prod
+	$(MAKE) -C $(TMPDIR) $(MAKEARGS) stdlib VERSION=prod
+	$(MAKE) -C $(TMPDIR) $(MAKEARGS) demos VERSION=prod
+
+sac2c_prod:
+	cd $(TMPDIR)/sac2c; $(CONFIGURE)
+	$(MAKE) -C $(TMPDIR)/sac2c TARGET="clean" clean
+	$(MAKE) -C $(TMPDIR)/sac2c HIDE="" $(JOPT) prod >$(LOGDIR)/LOG_sac2c_prod 2>&1
+
+
+stdlib:
+	cd $(TMPDIR)/stdlib; $(CONFIGURE)
+	$(MAKE) $(JOPT) -C $(TMPDIR)/stdlib TARGET="clean" clean
+ifeq ("$(MT)", "yes")
+	$(MAKE) -C $(TMPDIR)/stdlib mtfast >$(LOGDIR)/LOG_stdlib_$(VERSION) 2>&1
+else
+	$(MAKE) -C $(TMPDIR)/stdlib fast >$(LOGDIR)/LOG_stdlib_$(VERSION) 2>&1
+endif
+
+
+demos: 
+	-$(MAKE) -C $(TMPDIR) $(MAKEARGS) demo$(DEMOS)dir DIR="demos"
+ifeq ("$(VERSION)", "prod")
+	-$(MAKE) -C $(TMPDIR) $(MAKEARGS) demo$(DEMOS)dir DIR="apex"
+endif
+	-$(MAKE) -C $(TMPDIR) $(MAKEARGS) demoyesdir DIR="tutorial"
+	-$(MAKE) -C $(TMPDIR) $(MAKEARGS) demoyesdir DIR="testsuite"
+
+demonodir:
+	echo "Not run" >$(LOGDIR)/LOG_$(DIR)_$(VERSION)
+	echo "Not run" >$(LOGDIR)/LOG_$(DIR)_res_$(VERSION)
+	echo "Not run" >$(LOGDIR)/LOG_$(DIR)_checkres_$(VERSION)
+
+demoyesdir:
+	-$(MAKE) -C $(TMPDIR)/sac/$(DIR) TARGET="clean" clean
+ifeq ("$(MT)", "yes")
+	$(MAKE) -C $(TMPDIR)/sac/$(DIR) EXCLUDE_ERRORS=yes \
+                              MAKE_MT_ALSO=yes \
+                >$(LOGDIR)/LOG_$(DIR)_$(VERSION) 2>&1
+else
+	$(MAKE) -C $(TMPDIR)/sac/$(DIR) EXCLUDE_ERRORS=yes \
+                >$(LOGDIR)/LOG_$(DIR)_$(VERSION) 2>&1
+endif
+ifeq ("$(DIR)", "tutorial")
+ifeq ("$(MT)", "yes")
+	$(MAKE) -C $(TMPDIR)/sac/$(DIR) checkres \
+               MAKE_MT_ALSO=yes \
+               CHECKLOGFILE=$(LOGDIR)/LOG_$(DIR)_res_$(VERSION) \
+               >$(LOGDIR)/LOG_$(DIR)_checkres_$(VERSION) 2>&1
+else
+	$(MAKE) -C $(TMPDIR)/sac/$(DIR) checkres \
+               CHECKLOGFILE=$(LOGDIR)/LOG_$(DIR)_res_$(VERSION) \
+               >$(LOGDIR)/LOG_$(DIR)_checkres_$(VERSION) 2>&1
+endif
+else
+  ifeq ("$(DIR)", "testsuite")
+  ifeq ("$(MT)", "yes")
+	$(MAKE) -C $(TMPDIR)/sac/$(DIR) checkres \
+                 MAKE_MT_ALSO=yes \
+                 CHECKLOGFILE=$(LOGDIR)/LOG_$(DIR)_res_$(VERSION) \
+                 >$(LOGDIR)/LOG_$(DIR)_checkres_$(VERSION) 2>&1
+  else
+	$(MAKE) -C $(TMPDIR)/sac/$(DIR) checkres \
+                 CHECKLOGFILE=$(LOGDIR)/LOG_$(DIR)_res_$(VERSION) \
+                 >$(LOGDIR)/LOG_$(DIR)_checkres_$(VERSION) 2>&1
+  endif
+  endif
+endif
+
+ship_results:
+	$(SCP) -r $(LOGDIR) $(MASTERBASE):MASTERRUNS/$(HOSTNAME)
+	$(SSH) "touch MASTERRUNS/$(HOSTNAME)/done"
+
+
+

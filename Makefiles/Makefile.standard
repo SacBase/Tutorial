@@ -1,0 +1,226 @@
+#######################################################################################
+#
+# variables - mandatory:
+# ======================
+#
+# variables - optional:
+# =====================
+# $(EXCLUDE_FILES)	undef		.sac files which shall be excluded from
+#					compilation
+#
+# $(TARGETDIR)		.		path from src to executable files
+# $(LIBTARGETDIR)	.		path from src to .lib / .a files
+# $(INCTARGETDIR)	.		path from src to .h files
+# $(SUBDIRS)		undef		(sub-)directories to propagate make into
+#
+# standard targets:
+# =================
+# gmake			 compile all files
+# gmake clean_local	 locally clean up everything that belongs to the compilation of
+#                        sac files
+# gmake cleantime_local	 locally clean up everything that belongs to time measurements
+# gmake cleancheck_local locally clean up everything that belongs to the checksac2c/checkres
+#                        mechanism
+# gmake clean		 same as std_clean, but propagate to subdirs
+# gmake cleantime	 same as std_cleantime_local, but propagate to subdirs
+# gmake cleancheck	 same as std_cleancheck_local, but propagate to subdirs
+# gmake cleanall	 same as clean + cleantime + cleancheck
+# gmake touch		 touch all source files
+#
+#######################################################################################
+
+#######################################################################################
+#
+# make sure that Makefile.standard is not included more than once!
+# ( necessary since Makefile.time and Makefile.check both include 
+#   Makefile.standard but can be included from a single Makefile )
+#
+
+ifndef STDMKFILE
+STDMKFILE = "already included"
+
+#######################################################################################
+#
+# preset optional pathes first:
+#   - TARGETDIR   : where to put  XYZ           if XYZ.sac is in the actual directory
+#   - LIBTARGETDIR: where to put  XYZ.lib/XYZ.a if XYZ.sac is in the actual directory
+#   - INCTARGETDIR: where to put  XYZ.h         if XYZ.sac is in the actual directory
+#
+# optional pathes which are not preset:
+#   - SUBDIRS     : subdirs where make is propagated into
+#
+
+ifndef TARGETDIR
+TARGETDIR = .
+endif
+
+ifndef LIBTARGETDIR
+LIBTARGETDIR = .
+endif
+
+ifndef INCTARGETDIR
+INCTARGETDIR = .
+endif
+
+#######################################################################################
+#
+# general presettings:
+#
+
+MAKEFLAGS += --no-print-directory -r
+LF_EXT = .saclog
+
+include $(SACBASE)/Makefiles/Makefile.Config
+
+#
+# extend the standard libraries by the actual environment variables:
+#
+
+vpath lib%Tree$(SHARED_LIB_EXT) $(LIBTARGETDIR)/tree/host
+vpath %Mod$(SHARED_LIB_EXT) $(LIBTARGETDIR)/host
+
+#######################################################################################
+#
+# automatic target detection by source file analysis:
+#
+
+SAC_FILES  := $(filter-out $(basename $(EXCLUDE_FILES)), $(basename $(wildcard *.sac)))
+FILES      := $(foreach file,$(SAC_FILES), \
+               $(shell if \
+[ "`egrep '(module[ \n]*$(file)[ \n]*;)|(class[ \n]*$(file)[ \n]*;)' $(file).sac`"  = "" ];\
+                       then echo $(file);\
+                       fi))
+FILETARGETS   := $(patsubst %,$(TARGETDIR)/%, $(FILES))
+MTFILETARGETS := $(patsubst %,$(TARGETDIR)/%_mt, \
+                            $(filter-out $(basename $(EXCLUDE_FILES_FOR_MT)), $(FILES)))
+MODS          := $(filter-out $(FILES), $(SAC_FILES))
+MODTARGETS    := $(patsubst %,seq/lib%Mod$(SHARED_LIB_EXT), $(MODS))
+MTMODTARGETS  := $(patsubst %,mt-pth/lib%Mod$(SHARED_LIB_EXT), \
+                             $(filter-out $(basename $(EXCLUDE_FILES_FOR_MT)), $(MODS)))
+
+standard_all: $(FILETARGETS) $(MODTARGETS)
+
+ifeq ("$(MAKE_MT_ALSO)", "yes")
+standard_all: $(MTFILETARGETS) $(MTMODTARGETS)
+endif
+
+
+#######################################################################################
+#
+# basic pattern rules for libs, files, and dependency files
+#
+
+lib%Tree$(SHARED_LIB_EXT)  mt-pth/lib%Mod$(SHARED_LIB_EXT): %.sac
+	@ $(MKDIR) $(LIBTARGETDIR)
+	$(SAC2C) $(SAC2CFLAGS) -target mt_pth -o $(LIBTARGETDIR) $<
+
+lib%Tree$(SHARED_LIB_EXT)  seq/lib%Mod$(SHARED_LIB_EXT): %.sac
+	@ $(MKDIR) $(LIBTARGETDIR)
+	$(SAC2C) $(SAC2CFLAGS) -o $(LIBTARGETDIR) $<
+
+$(TARGETDIR)/%: %.sac
+	@ $(MKDIR) $(TARGETDIR)
+	-$(SAC2C) $(SAC2CFLAGS) -o $@ $<
+	$(RM) $(TARGETDIR)/$*.c
+	@ $(ECHO) "$(SAC2C) $(SAC2CFLAGS) -o $@ $<" >.$*$(LF_EXT)
+	@ $(SAC2C) -V >> .$*$(LF_EXT)
+
+
+$(TARGETDIR)/%_mt: %.sac
+	@ $(MKDIR) $(TARGETDIR)
+	-$(SAC2C) $(SAC2CFLAGS) -target mt_pth -o $@ $<
+	$(RM) $(TARGETDIR)/$*_mt.c
+	@ $(ECHO) "$(SAC2C) $(SAC2CFLAGS) -mt -o $@ $<" >.$*_mt$(LF_EXT)
+	@ $(SAC2C) -V >> .$*_mt$(LF_EXT)
+
+
+#######################################################################################
+#
+# standard targets for handling a project
+#
+
+$(SACBASE)/Makefiles/Makefile.Config: $(SACBASE)/Makefiles/Makefile.Config.in
+	(cd $(SACBASE); ./configure )
+
+clean_local:
+	$(RM) $(FILETARGETS) *.bak *~ a.out* $(addsuffix .c,$(FILETARGETS)) \
+              $(MTFILETARGETS) $(MTMODTARGETS) \
+	      $(VERSIONTARGETS) $(MODTARGETS) $(C_MODTARGETS) $(OBJECTS) \
+	      $(patsubst %,$(INCTARGETDIR)/%.h,$(MODS)) \
+	      $(patsubst %,$(LIBTARGETDIR)/lib%Mod.a,$(MODS)) \
+	      $(patsubst %,$(LIBTARGETDIR)/host/seq/lib%Mod$(SHARED_LIB_EXT),$(MODS)) \
+	      $(patsubst %,$(LIBTARGETDIR)/host/mt_pth/lib%Mod$(SHARED_LIB_EXT),$(MODS)) \
+	      $(patsubst %,$(LIBTARGETDIR)/tree/host/lib%Tree$(SHARED_LIB_EXT),$(MODS)) \
+              lex.*.c *.tab.[ch] *.output \
+	      $(patsubst %,.%$(LF_EXT),$(FILES)) $(patsubst %,.%$(TMP_EXT),$(FILES)) \
+	      $(patsubst %,.%$(TMP2_EXT),$(FILES)) \
+	      $(patsubst %,.%$(LF_EXT),$(VERSIONNAMES)) $(patsubst %,.%$(TMP_EXT),$(VERSIONNAMES)) \
+	      $(patsubst %,.%$(TMP2_EXT),$(VERSIONNAMES)) \
+	      *.tar
+	-$(RM) $(DEPS) $(C_DEPS) $(VERS)
+	-$(RM) $(CLOG_FILES) $(RES_FILES)
+
+# Don't call 'make' after clean_local has been made! Otherwise, $(DEPS), $(C_DEPS), 
+# and $(VERS) will be created again!
+
+
+cleantime_local:
+	-$(RM) $(TIME_FILES)
+
+cleancheck_local:
+	-$(RM) $(CLOG_FILES) $(addsuffix .base,$(CLOG_FILES))
+	-$(RM) $(RES_FILES) $(addsuffix .base,$(RES_FILES))
+
+std_clean_propogate: 
+	$(MAKE) subdirs TARGET="clean"
+	$(MAKE) clean_local
+
+clean: 
+	$(MAKE) subdirs TARGET="clean"
+	$(MAKE) clean_local
+
+cleancheck:
+	$(MAKE) subdirs TARGET="cleancheck"
+	$(MAKE) cleancheck_local
+
+cleantime:
+	$(MAKE) subdirs TARGET="cleantime"
+	$(MAKE) cleantime_local
+
+cleanall:
+	$(MAKE) subdirs TARGET="cleanall"
+	$(MAKE) cleancheck_local
+	$(MAKE) cleantime_local
+	$(MAKE) clean_local
+
+touch:
+	touch $(wildcard *.sac)
+	$(MAKE) subdirs TARGET="touch"
+
+
+#
+# general presettings needed:
+#
+
+ACT_DIR       := $(shell pwd)
+ACTDIR_NAME   := $(notdir $(shell pwd))
+
+
+#######################################################################################
+#
+# this part is needed for propagating make into subdirs!
+#
+
+standard_all: subdirs
+
+subdirs:
+	@ if [ "$(SUBDIRS)x" != "x" ]; \
+	  then for d in $(SUBDIRS)""  ; do \
+	         $(MAKE) -C $${d} TARGET="$(TARGET)" PARM="$(PARM)" $(TARGET); \
+	       done; \
+	  fi
+
+endif    # ifndef STDMKFILE
+
+
+

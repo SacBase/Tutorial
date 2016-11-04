@@ -1,0 +1,104 @@
+################################################################################
+#
+# Makefile template for the stdlib
+#
+# IMPORTANT: This file is used in ALL subdirectories of the stdlib!
+#            It should NEITHER be copied (maintenance reasons) 
+#            NOR be linked (RCS problems). Instead, dummy-Makefiles
+#            of the following kind should be created:
+#
+# include $(SACBASE)/stdlib/Makefiles/Makefile_template.stdlib
+#
+################################################################################
+
+#
+# The file structure in the stdlib is as follows:
+#
+#                           <group>  (.sac-files)
+#             /---------------/\-------------------\
+#           src                                   lib  (.so-flies / .a-files)
+#       /////\\\\\\
+#    <mod1> ... <modn> (.c-files)
+#
+# Furthermore, the following convention has to be kept:
+# For each module/class XYZ.sac in <group> THAT CONTAINS EXTERN DECLARATIONS
+# there exists a subdirectory <modi> named XYZ which contains the respective 
+# C sources.
+#
+
+#
+# General setup:
+#
+SAC2CFLAGS += -v0 -O3 -check tb $(CUSTOMSAC2CFLAGS) $(MTSAC2CFLAGS)
+# SAC2CFLAGS += -v0 -maxspec 0 -O3 -noOPT -doDFR -check tb
+#               -doRCO -doUIP -doDR -doIPC -doSRF -doLRO
+
+#
+# Setup the paths for Makefile.standard accordingly:
+# 
+# set LIBTARGETDIR on relative path from <group> to lib:
+#
+LIBTARGETDIR  = lib
+#
+# set SUBDIRS to all subdirectories available; exclude some special purpose
+# dirs:
+#
+ifneq ($(TARGET),sublibdoc)
+SUBDIRS		= $(filter-out Makefiles/ Scripts/ config/ RCS/ lib/ doc/, \
+                               $(shell ls -F | grep "/"))
+else
+SUBDIRS		= $(filter-out Makefiles/ Scripts/ config/ RCS/ lib/ doc/ src/, \
+                               $(shell ls -F | grep "/"))
+endif
+
+#
+# Setup further variables for Makefile.standard:
+#
+# set MAKE_NON_LOCAL_DEPENDENCIES:
+#
+MAKE_NON_LOCAL_DEPENDENCIES     = yes
+
+#
+# make sure, dependencies within the stdlib are checked as well!
+#
+SAC2CMLIB = -Mlib
+
+#
+# set TARFILENAME to stdlib.tar:
+#
+TARFILENAME = stdlib.tar
+
+#
+# Makefile.Noopt modifies SAC2CFLAGS in dependence of LIBNAME
+#
+LIBNAME=$(notdir $(shell pwd))
+include $(SACBASE)/stdlib/Makefiles/Makefile.Noopt
+
+LIBDOCDIR     = doc
+
+include $(SACBASE)/stdlib/Makefiles/Makefile.standard
+
+#
+# Setup for finding platform dependent infos (config.h) when compiling Clibs:
+#
+CCINCLUDEDIR += -I$(SACBASE)/stdlib/config/
+
+include $(SACBASE)/stdlib/Makefiles/Makefile.Clibs
+
+LATEX2HTMLFLAGS += -local_icons -up_url "../../index.php" -up_title "SAC-Homepage"
+
+#
+# Setup paths for Makefile.check:
+#
+CHECKLOGFILE	= $(SACBASE)/stdlib/CHECKLOG
+CHECKDIR      = .checkdir
+ 
+include $(SACBASE)/stdlib/Makefiles/Makefile.check
+
+
+#
+# A new target for local updates in a single subdir of the stdlib:
+#
+local:
+	$(MAKE) MAKE_NON_LOCAL_DEPENDENCIES=no
+

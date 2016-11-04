@@ -1,0 +1,64 @@
+#define XRES 6
+#define YRES 4
+#define EXPAND 64
+
+#define DEPTH 1024
+
+use Structures: all;
+use SDLdisplay: all;
+use StdIO : all;
+
+use Fractal_tier1 : all;
+
+inline
+color[.,.] stretchRgb( color[.,.] pic, int stretch)
+{
+  res = with {
+          (. <= iv <= .): pic[ iv / stretch];
+        } : genarray( shape(pic) * stretch, black());
+  return( res);
+}
+
+/* Main ******************************************************************** */
+
+int main()
+{
+  disp = initDisplay( EXPAND * [YRES,XRES] );
+
+  cmin = [toc( -2.2, 1.0)];
+  cmax = [toc( 0.8, -1.0)];
+
+  while( true) {
+    expand = EXPAND;
+    cur_shape = [YRES,XRES];
+
+    do {
+      plane = genComplexArray( cur_shape, cmin[[0]], cmax[[0]]);
+
+      ts = escapeTime( plane, DEPTH);
+  
+      rgbs = intArrayToMonochrome( ts);
+  
+      drawArray( disp, stretchRgb( rgbs, expand));
+  
+      expand = expand / 2;
+      cur_shape = 2 * cur_shape;
+    } while ( expand >= 1);
+
+#if 0
+    zoom_coords = getSelection( disp);
+    if (all( zoom_coords >= 0)) {
+      cmin = [plane[ zoom_coords[[0]]]] ++ cmin;
+      cmax = [plane[ zoom_coords[[1]]]] ++ cmax;
+    } else {
+      cmin = all( shape(cmin) > 1) ? drop( [1], cmin) : cmin;
+      cmax = all( shape(cmax) > 1) ? drop( [1], cmax) : cmax;
+    }
+#endif
+  }
+
+  destroyDisplay( disp);
+
+  return(0);
+}
+

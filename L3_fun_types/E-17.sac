@@ -1,0 +1,14 @@
+use ScalarArith: all;
+
+int, int divmod( int x, int y)
+{ 
+  return( x/y, x%y);
+}
+
+int main()
+{
+  d, m = divmod( 8, 3);
+
+  return( d);
+}
+

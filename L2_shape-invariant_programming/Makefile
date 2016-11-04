@@ -11,13 +11,12 @@ endif
 #
 # Setup for Makefile.standard:
 #
-# EXCLUDE_FILES               = 
+EXCLUDE_FILES               = relaxation.sac
 # TARGETDIR                   = .
 # LIBTARGETDIR                = .
 # INCTARGETDIR                = .
 # LIBSRCDIR                   = .
 # SUBDIRS                     = 
-# MAKE_NON_LOCAL_DEPENDENCIES = 
 
 #
 # Setup for Makefile.versions
@@ -36,4 +35,4 @@ CHECKLOGFILE                = ./CHECKLOG
 #
 #######################################################################################
 
-include $(SACBASE)/stdlib/Makefiles/Makefile_template.prg
+include $(SACBASE)/Makefiles/Makefile_template.prg

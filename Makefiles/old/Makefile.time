@@ -1,0 +1,110 @@
+#######################################################################################
+#
+# variables - mandatory:
+# ======================
+#
+# variables - optional:
+# =====================
+# $(TIMESDIR)		.		path to .time files
+# $(INPSDIR)		.		path to .inp(s) files
+# $(RT_FLAGS)		undef 		run-time flags
+# $(LOGSIZE)		undef		log problem size in .time-file
+#                                         by calling $(LOGSIZE)
+# $(LOGRESULT)		undef 		log result in .time-file
+# $(LOGUSERS)           undef           log user in .time-file
+#                                         by calling $(LOGUSERS)
+# $(LOGLOAD)            undef           log load in .time-file
+#                                         by calling $(LOGLOAD)
+#
+# standard targets:
+# =================
+# gmake					measure all files
+#
+#######################################################################################
+
+TMP_EXT       = .tmp
+TMP2_EXT      = .tmp2
+
+
+include $(SACBASE)/stdlib/Makefiles/Makefile.standard
+include $(SACBASE)/stdlib/Makefiles/Makefile.run
+
+#######################################################################################
+#
+# preset optional pathes first:
+#   - TIMESDIR   : where to put   XYZ.time   if  XYZ.sac  is in the actual directory
+#
+
+ifndef TIMESDIR
+TIMESDIR = .
+endif
+
+#######################################################################################
+#
+# automatic target detection by source file analysis:
+#
+
+TIME_FILES = $(patsubst %,$(TIMESDIR)/%.time,$(FILES) $(basename $(notdir $(VERSIONTARGETS))))
+
+
+.PRECIOUS: $(TIME_FILES)
+.PHONY: measure
+
+standard_all: $(TIME_FILES)
+
+
+#######################################################################################
+#
+# pattern rule for timing executables. It relies on the intermediate target .XYZ.r
+# which according to the existance of XYZ.inp / XYZ.inps contains all intended calls of
+# the executable XYZ. The pattern rules for .XYZ.r along with fuirther comments can be
+# found in     $(SACBASE)/stdlib/Makefiles/Makefile.run  .
+# 
+
+$(TIMESDIR)/%.time: .%.r
+	@ while read r; do                         \
+	    $(MAKE) measure FILE="$*" RUN="$${r}"; \
+	  done < .$*.r
+	$(CLOCK_SKEW_ELIMINATION) $@
+
+
+
+#######################################################################################
+#
+# phony-rule "measure".
+# "measure" is used as universal timing "routine"; it is parameterized by
+# the variable $(FILE), which contains the actual file-name, and
+# $(RUN), which contains the executable-call, e.g.
+#     "XYZ_mt -m2 $(RT_FLAGS) <XYZ_mt.inp"
+#
+
+measure:
+	@ $(ECHO) "*****************************************************************"\
+	  >>$(TIMESDIR)/$(FILE).time
+	@ $(ECHO)      "date         : ""`$(DATE_TIME)`" >>$(TIMESDIR)/$(FILE).time
+	@ $(ECHO)      "measuring    : $(RUN) "          >>$(TIMESDIR)/$(FILE).time
+	@ $(ECHO)      "on machine   : $(HOSTMACHINE)"   >>$(TIMESDIR)/$(FILE).time
+	@ if [ -f .$(FILE)$(LF_EXT) ]; \
+	  then $(ECHO) "compiled by  : ""`cat .$(FILE)$(LF_EXT)`" \
+                       >>$(TIMESDIR)/$(FILE).time;\
+	  else : ; fi
+ifdef LOGSIZE
+	@ $(ECHO)      "problem-size : ""`$(LOGSIZE)`" >>$(TIMESDIR)/$(FILE).time
+endif
+ifdef LOGUSERS
+	@ $(ECHO)      "users        : ""`$(LOGUSERS)`" >>$(TIMESDIR)/$(FILE).time
+endif
+ifdef LOGLOAD
+	@ $(ECHO)      "load         : ""`$(LOGLOAD)`" >>$(TIMESDIR)/$(FILE).time
+endif
+ifdef LOGRESULT
+	$(MEASURE) $(RUN) >.$(FILE)$(TMP_EXT) 2>.$(FILE)$(TMP2_EXT)
+else
+	$(MEASURE) $(RUN) >/dev/null 2>.$(FILE)$(TMP2_EXT)
+endif
+	@ $(ECHO)      "time         : ""`cat .$(FILE)$(TMP2_EXT)`" >>$(TIMESDIR)/$(FILE).time
+	@ $(RM) .$(FILE)$(TMP2_EXT)
+ifdef LOGRESULT
+	@ $(ECHO)      "result       : ""`cat .$(FILE)$(TMP_EXT)`" >>$(TIMESDIR)/$(FILE).time
+	@ $(RM) .$(FILE)$(TMP_EXT)
+endif

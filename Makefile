@@ -1,23 +1,9 @@
 #######################################################################################
 #
-# For installing the tutorial, it has to made sure these have been unpacked completely.
-# Therefore, we have to wrap up the standard make mechanism as included by
-# the target "standard_all" from Makefile_template.prg by potentially calling
-# "make untar" first:
-#
-
-all: L1_arrays_as_data/E-01.sac
-	$(MAKE) standard_all
-
-L1_arrays_as_data/E-01.sac:
-	$(MAKE) untar TARFILENAME=tutorial.tar
-
-
-#######################################################################################
-#
 # General Setup:
 #
-SAC2CFLAGS = -check ctb -v1 -O3 -ecc
+SAC2CFLAGS = -check ctb -v2 -O3
+export EXCLUDE_ERRORS := yes
 
 ifdef EXCLUDE_ERRORS
 SAC2CFLAGS += -DEXCLUDE_ERRORS
@@ -31,8 +17,9 @@ endif
 # LIBTARGETDIR                = .
 # INCTARGETDIR                = .
 # LIBSRCDIR                   = .
-SUBDIRS                     = L1_arrays_as_data L2_shape-invariant_programming
-# MAKE_NON_LOCAL_DEPENDENCIES = 
+SUBDIRS                     = L1_arrays_as_data L2_shape-invariant_programming \
+                              L3_fun_types L4_fun_bodies L5_advanced \
+                              L6_with-loop_basics L8_case-study_mandelbrot
 
 #
 # Setup for Makefile.versions
@@ -51,4 +38,4 @@ CHECKLOGFILE                = ./CHECKLOG
 #
 #######################################################################################
 
-include $(SACBASE)/stdlib/Makefiles/Makefile_template.prg
+include $(SACBASE)/Makefiles/Makefile_template.prg

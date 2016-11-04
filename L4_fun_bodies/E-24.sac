@@ -1,0 +1,50 @@
+use Array: all;
+use StdIO: all;
+
+int, int[5] f()
+{ return ( 42, [21,21,21,21,21]);}
+
+int main()
+{
+  a = 42;
+  print( a);
+  a += 5;
+  print( a);
+  a -= a;
+  print( a);
+
+  v = [1,2,3,4,5];
+  print( v);
+  v += 1;
+  print( v);
+  v[0] = 0;
+  print( v);
+#if 0
+  v[0] ++; //sp bug should be identical to: v = modarray( v, 0, ++ v[0]);
+#endif
+  v = modarray( v, 0, ++ v[0]);
+  print( v);
+
+  m=[v,v,v];
+  print( m);
+#if 0
+  m[0][0] = 42;
+#endif
+  m[0] = modarray( m[0], 0, 42);
+  print( m);
+  m = modarray( m, 0, modarray( m[0], 0, 42));
+  print( m);
+
+#if 0
+  v[1], m[1] +=f();
+#endif
+  x,y = f();
+  v[1] += x;
+  m[1] += y;
+
+  print( v);
+  print( m);
+
+  return( a);
+}
+

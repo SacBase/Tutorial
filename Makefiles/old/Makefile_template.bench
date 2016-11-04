@@ -1,0 +1,77 @@
+#######################################################################################
+#
+# Makefile template for benchmarking
+# ==================================
+# This template is made for all those directories where .sac-files
+# are to be compiled and benchmarked.
+#
+# The easiest way to use it is to copy the next few lines into a file
+# "Makefile" and to adjust the parameters as needed:
+#
+#######################################################################################
+#
+# General Setup:
+#
+# SAC2CFLAGS = -O3 -v1
+
+#
+# Setup for Makefile.standard:
+#
+# EXCLUDE_FILES               = error.sac
+# TARGETDIR                   = .
+# LIBTARGETDIR                = .
+# INCTARGETDIR                = .
+# LIBSRCDIR                   = .
+# SUBDIRS                     = 
+# MAKE_NON_LOCAL_DEPENDENCIES = yes
+
+#
+# Setup for Makefile.versions:
+#
+# EXCLUDE_FILES_FOR_MT        = error.sac
+# MAKE_MT_ALSO                = yes
+# VERSDIR                     = .
+
+#
+# Setup for Makefile.check:
+#
+# CHECKLOGFILE                = $(HOME)/sac/CHECKLOG
+# CHECKDIR                    = .checkdir
+# RT_FLAGS                    = 
+# INPSDIR                     = inputs
+
+# 
+# Setup for Makefile.time:
+#
+# TIMESDIR                    = .
+#
+# HOSTMACHINE = $(HOST) # example:   blitz
+# HOSTLOGIN   = $(USER) # example:   stud4711
+#
+# LOGSIZE     =         # example:   cat $(FILE).inp
+# LOGRESULT   =         # example:   yes
+# LOGUSERS    =         # example:   rsh -n -l $(HOSTLOGIN) $(HOSTMACHINE) who -q
+# LOGLOAD     =         # example:   rsh -n -l $(HOSTLOGIN) $(HOSTMACHINE) vmstat 2 5 | \
+#                                    $(AWK) 'BEGIN{x=0} {if (x>2) {r=$$NF; print 100-r \"%  \";} x=x+1}'
+# MEASURE     = time    # example:   $(SACBASE)/stdlib/Scripts/timemult \
+#                                      -h $(HOSTMACHINE) -l $(HOSTLOGIN) -r 4
+# 
+#######################################################################################
+#
+# include $(SACBASE)/stdlib/Makefiles/Makefile_template.bench
+#
+#######################################################################################
+
+
+include $(SACBASE)/stdlib/Makefiles/Makefile.standard
+include $(SACBASE)/stdlib/Makefiles/Makefile.versions
+include $(SACBASE)/stdlib/Makefiles/Makefile.time
+
+#
+# Setup CHECKLOGFILE for Makefile.check:
+#
+ifndef CHECKLOGFILE
+CHECKLOGFILE	= $(HOME)/sac/CHECKLOG
+endif
+ 
+include $(SACBASE)/stdlib/Makefiles/Makefile.check

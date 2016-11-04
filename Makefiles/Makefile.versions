@@ -1,0 +1,121 @@
+#######################################################################################
+#
+# This Makefile is an extension to the standard Makefile. It supports the convenient
+# generation of several different versions from a single source file.
+# It does so by means of two mechanisms:
+#   - if $(MAKE_MT_ALSO) is set for each file XYZ.sac besides XYZ (compiled with the
+#     standard options) XYZ_mt is generated also. It is compiled with -mt being 
+#     aditionally set. To exclude single files from this mechanism,
+#     $(EXCLUDE_FILES_FOR_MT) may define a list of .sac files.
+#   - if more sophisticated versions are required, a file named XYZ.vers can be
+#     specified. It should contain lines of the following kind:
+#
+#        <extension> : <sac-options>
+#
+#     As an example, consider the following lines:
+#
+#        syshmgr : -noPHM -noWLUR -DMY_FLAG
+#        mt      : -maxlur 20 -mt
+#                : -maxlur 20
+#
+#     The first line defines a new target XYZ_syshmgr which should be compiled
+#     with the options -noPHM -noWLUR -DMY_FLAG (set after the standard options from
+#     $(SAC2CFLAGS).
+#     The second and third line override the standard definitions for XYZ and XYZ_mt!!
+#
+#     However, it should be noted here, that both these mechanisms DO NOT APPLY FOR
+#     MODULES or CLASSES !!
+#
+#######################################################################################
+#
+# variables - mandatory:
+# ======================
+#
+# variables - optional:
+# =====================
+# $(EXCLUDE_FILES_FOR_MT)  undef    .sac files for which no mt-version shall be
+#                                     generated even if MAKE_MT_ALSO == yes
+# $(VERSDIR)	           .	    path from src to versions-file
+#
+#######################################################################################
+
+#######################################################################################
+#
+# preset optional pathes first:
+#   - VERSDIR : where to find XYZ.vers if XYZ.sac resides in the actual directory
+#
+
+ifndef VERSDIR
+VERSDIR = .
+endif
+
+
+#######################################################################################
+#
+# automatic target detection based on the standard targets in $(FILES)
+#
+
+VERSIONFILES   := $(patsubst %,%.vers,$(filter $(basename $(wildcard *.vers)), $(FILES)))
+VERSIONTARGETS := $(foreach vfile,$(VERSIONFILES), \
+                     $(shell while read v; do \
+                               vname=`echo $${v} | $(NAWK) -F: '{gsub(" ","",$$1); print $$1}'`; \
+                               if [ "$${vname}x" != "x" ]; then \
+                                 echo $(basename $(vfile))_$${vname}; \
+                               fi; \
+                             done < $(vfile); ) )
+VERSIONTARGETS := $(patsubst %,$(TARGETDIR)/%,$(VERSIONTARGETS))
+
+ifeq ("$(MAKE_MT_ALSO)", "yes")
+VERSIONTARGETS := $(filter-out $(MTFILETARGETS), $(VERSIONTARGETS))
+endif
+
+VERSIONNAMES   := $(patsubst $(TARGETDIR)/%,%,$(VERSIONTARGETS))
+
+standard_all: $(VERSIONTARGETS)
+
+
+#######################################################################################
+#
+# similar to the automatic dependency file creation mechanism, for all XYZ.sac files
+# for which a XYZ.vers file is present, the version rules are created and written
+# into a file .XYZ.v. This is achieved by means of the following pattern rule:
+#
+
+.%.v: %.sac %.vers
+	@ $(ECHO) "creating $@ from $*.vers"
+	@ $(RM) $@
+	@ while read v; do \
+	  vname=`echo $${v} | $(NAWK) -F: '{gsub(" ","",$$1); print $$1}'`; \
+	  if [ "$${vname}x" != "x" ]; then \
+	    vname="$*_$${vname}"; \
+	    $(ECHO)  PARENT_$${vname} := $*>>$@; \
+	    $(ECHO)  >>$@; \
+	  else \
+	    vname="$*"; \
+	  fi; \
+	  vflags=`echo $${v} | $(NAWK) -F: '{print $$2}'`; \
+	  $(ECHO) '$$(TARGETDIR)/'$${vname}': $*.sac .$*.v' >>$@; \
+	  $(ECHO) '\t@ $$(MKDIR) $$(TARGETDIR)' >>$@; \
+	  $(ECHO) '\t-$$(SAC2C) $$(SAC2CFLAGS) '$${vflags}' -o $$@ $$<' >>$@; \
+	  $(ECHO) '\t$$(RM) $$@.c' >>$@; \
+	  $(ECHO) '\t@ $$(ECHO) '\"'$$(SAC2C) $$(SAC2CFLAGS) '$${vflags}' -o $$@' \
+                   '$$<'\"' >.'$${vname}'$$(LF_EXT)' >>$@; \
+	  $(ECHO)  >>$@; \
+	done < $*.vers;
+	@ $(ECHO) "# no further versions for $< specified" >>$@
+
+
+
+
+#######################################################################################
+#
+# and here, the additional rules are included!
+# The nice thing about it is that specific definitions for XYZ or XYZ_mt that are 
+# included here overrule the pattern rules given in Makefile.standard!
+#
+
+VERS	= $(patsubst %.vers,.%.v, $(VERSIONFILES))
+
+ifneq ($(VERS),)
+-include $(VERS)
+endif

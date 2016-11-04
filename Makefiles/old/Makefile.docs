@@ -1,0 +1,189 @@
+#######################################################################################
+#
+# WARNING!! this file should never be used directly as a Makefile!!
+#
+# Instead, it should be included in a Makefile which looks similar to:
+
+# TEX_FILES     = 	this allows restricting gmake to specific files
+# FIG_FILES     =       this allows restricting gmake to specific files
+# SUB_DIRS      =       this allows restricting gmake to specific subdirectories
+# AUX_FILES     =       this allows including additional files by name
+
+# HTML_LINK_DIR =	path from SAC_PUBLIC_HTML to desired location of .html files
+# DVI_LINK_DIR  = 	path from SAC_PUBLIC_HTML to desired location of .dvi files
+# PS_LINK_DIR   =       path from SAC_PUBLIC_HTML to desired location of .ps files
+# GIF_LINK_DIR  = 	path from SAC_PUBLIC_HTML to desired location of .gif files
+# PNG_LINK_DIR  = 	path from SAC_PUBLIC_HTML to desired location of .png files
+
+# include $(SACBASE)/stdlib/Makefiles/Makefile.docs
+
+# LATEX2HTMLFLAGS += -show_section_numbers
+
+#######################################################################################
+
+MAKEFLAGS += --no-print-directory -r
+
+include $(SACBASE)/stdlib/Makefiles/Makefile.Config
+
+#######################################################################################
+
+ACT_DIR      := $(shell pwd)
+
+ifndef TEX_FILES
+TEX_FILES    := $(wildcard *.tex)
+endif
+
+ifndef FIG_FILES
+FIG_FILES    := $(wildcard *.fig)
+endif
+
+ifndef SUB_DIRS
+SUB_DIRS      := $(filter-out Scripts/ RCS/ $(patsubst %.tex,%/, $(TEX_FILES)), \
+                             $(shell ls -F | grep "/"))
+endif
+
+HTML_TARGETS := $(patsubst %.tex,%/index.html, $(TEX_FILES))
+DVI_TARGETS  := $(patsubst %.tex,%.dvi, $(TEX_FILES))
+PS_TARGETS   := $(patsubst %.tex,%.ps, $(TEX_FILES)) $(patsubst %.fig,%.ps, $(FIG_FILES))
+PDF_TARGETS  := $(patsubst %.tex,%.pdf, $(TEX_FILES))
+GIF_TARGETS  := $(patsubst %.fig,%.gif, $(FIG_FILES))
+PNG_TARGETS  := $(patsubst %.fig,%.png, $(FIG_FILES))
+
+TEX2HTMLDIRS := $(basename $(TEX_FILES))
+
+
+docs_all: $(HTML_TARGETS) $(DVI_TARGETS) $(PS_TARGETS) $(PNG_TARGETS)
+	@ $(MAKE) subdirs
+	@ if [ "$(SAC_PUBLIC_HTML)" = "" ]; then \
+	    $(ECHO) SAC_PUBLIC_HTML not defined! >&2; \
+	    exit 1 ; \
+	  else \
+	    $(MAKE) links; \
+	  fi
+
+
+%.dvi: %.tex
+	($(CD) $(@D); TEXINPUTS=$(TEXINPUTS) $(LATEX) $(<F) )
+	($(CD) $(@D); TEXINPUTS=$(TEXINPUTS) $(LATEX) $(<F) )
+	($(CD) $(@D); TEXINPUTS=$(TEXINPUTS) $(LATEX) $(<F) )
+
+%.pdf: %.tex
+	TEXINPUTS=$(TEXINPUTS) $(PDFLATEX) $<
+
+%.ps: %.dvi %.tex
+	$(DVIPS) -o $@ $<
+
+%.ps: %.fig
+	$(FIGPS) $(FIGPSFLAGS) $< $@
+
+%.gif: %.fig
+	$(FIGGIF) $(FIGGIFFLAGS) $< $@
+
+%.png: %.fig
+	$(FIGPNG) $(FIGPNGFLAGS) $< $@
+
+%/index.html: %.tex
+	TEXINPUTS=$(TEXINPUTS) $(LATEX2HTML) $(LATEX2HTMLFLAGS) $<
+
+#######################################################################################
+
+subdirs:
+	@ if [ "$(SUB_DIRS)x" != "x" ]; \
+	  then for d in $(SUB_DIRS)""  ; do \
+	         $(MAKE) -C $${d} ; \
+	       done; \
+	  fi
+
+subdirs-clean:
+	@ if [ "$(SUB_DIRS)x" != "x" ]; \
+	  then for d in $(SUB_DIRS)""  ; do \
+	         $(MAKE) -C $${d} clean ; \
+	       done; \
+	  fi
+
+#######################################################################################
+
+HTML_FILES = $(wildcard *.html) $(foreach dir,$(TEX2HTMLDIRS),$(wildcard $(dir)/*.html))
+HTML_LINKS = $(patsubst %,$(SAC_PUBLIC_HTML)/$(HTML_LINK_DIR)/%, $(HTML_FILES))
+
+PHP_FILES = $(wildcard *.php) 
+PHP_LINKS = $(patsubst %,$(SAC_PUBLIC_HTML)/$(HTML_LINK_DIR)/%, $(PHP_FILES))
+
+CSS_FILES = $(wildcard *.css) $(foreach dir,$(TEX2HTMLDIRS),$(wildcard $(dir)/*.css))
+CSS_LINKS = $(patsubst %,$(SAC_PUBLIC_HTML)/$(HTML_LINK_DIR)/%, $(CSS_FILES))
+
+DVI_FILES = $(wildcard *.dvi) $(DVI_TARGETS)
+DVI_LINKS = $(patsubst %,$(SAC_PUBLIC_HTML)/$(DVI_LINK_DIR)/%, $(DVI_FILES))
+
+PS_FILES = $(wildcard *.ps) $(PS_TARGETS)
+PS_LINKS = $(patsubst %,$(SAC_PUBLIC_HTML)/$(PS_LINK_DIR)/%, $(PS_FILES))
+
+GIF_FILES = $(wildcard *.gif) $(foreach dir,$(TEX2HTMLDIRS),$(wildcard $(dir)/*.gif))
+GIF_LINKS = $(patsubst %,$(SAC_PUBLIC_HTML)/$(GIF_LINK_DIR)/%, $(GIF_FILES))
+
+PNG_FILES = $(wildcard *.png) $(foreach dir,$(TEX2HTMLDIRS),$(wildcard $(dir)/*.png))
+PNG_LINKS = $(patsubst %,$(SAC_PUBLIC_HTML)/$(PNG_LINK_DIR)/%, $(PNG_FILES))
+
+AUX_LINKS = $(patsubst %,$(SAC_PUBLIC_HTML)/$(HTML_LINK_DIR)/%, $(AUX_FILES))
+
+links: $(HTML_LINKS) $(PHP_LINKS) $(CSS_LINKS) $(AUX_LINKS) \
+       $(GIF_LINKS) $(PNG_LINKS) $(DVI_LINKS) $(PS_LINKS)
+
+
+$(SAC_PUBLIC_HTML)/$(HTML_LINK_DIR)/%.html: %.html
+	$(MKDIR) $(@D)
+	$(RM) $@
+	$(LN) $(ACT_DIR)/$< $@
+
+$(SAC_PUBLIC_HTML)/$(HTML_LINK_DIR)/%.php: %.php
+	$(MKDIR) $(@D)
+	$(RM) $@
+	$(LN) $(ACT_DIR)/$< $@
+
+$(SAC_PUBLIC_HTML)/$(HTML_LINK_DIR)/%.css: %.css
+	$(MKDIR) $(@D)
+	$(RM) $@
+	$(LN) $(ACT_DIR)/$< $@
+
+$(SAC_PUBLIC_HTML)/$(GIF_LINK_DIR)/%.gif: %.gif
+	$(MKDIR) $(@D)
+	$(RM) $@
+	$(LN) $(ACT_DIR)/$< $@
+
+$(SAC_PUBLIC_HTML)/$(PNG_LINK_DIR)/%.png: %.png
+	$(MKDIR) $(@D)
+	$(RM) $@
+	$(LN) $(ACT_DIR)/$< $@
+
+$(SAC_PUBLIC_HTML)/$(PS_LINK_DIR)/%.ps: %.ps
+	$(MKDIR) $(@D)
+	$(RM) $@
+	$(LN) $(ACT_DIR)/$< $@
+
+$(SAC_PUBLIC_HTML)/$(DVI_LINK_DIR)/%.dvi: %.dvi
+	$(MKDIR) $(@D)
+	$(RM) $@
+	$(LN) $(ACT_DIR)/$< $@
+
+$(SAC_PUBLIC_HTML)/$(HTML_LINK_DIR)/%: %
+	$(MKDIR) $(@D)
+	$(RM) $@
+	$(LN) $(ACT_DIR)/$< $@
+
+#######################################################################################
+
+html: $(HTML_TARGETS)
+
+dvi: $(DVI_TARGETS)
+
+pdf: $(PDF_TARGETS)
+
+ps: $(PS_TARGETS)
+
+gif: $(GIF_TARGETS)
+
+png: $(PNG_TARGETS)
+
+clean: subdirs-clean
+	$(RM) *.log *.toc *.aux $(HTML_TARGETS) $(DVI_TARGETS) $(PS_TARGETS) $(GIF_TARGETS) $(PNG_TARGETS) $(PDF_TARGETS)
+	$(RM) $(TEX2HTMLDIRS)

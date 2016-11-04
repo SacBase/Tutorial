@@ -1,0 +1,158 @@
+
+WARNINGS   = egrep --binary-files=text -i 'warning| info' $(LOGDIR)/$(FILE) \
+             | fgrep --binary-files=text -v 'modification time' \
+             | fgrep --binary-files=text -v 'Clock skew detected' \
+             | fgrep --binary-files=text -v 'Remote host denied X11 forwarding'
+CLK_SKEWS  = fgrep --binary-files=text 'modification time in the future' $(LOGDIR)/$(FILE) | wc -l
+C_ERRORS   = egrep --binary-files=text '^[/.A-z]*.[clyh]:[0-9]*:' $(LOGDIR)/$(FILE) \
+             | fgrep --binary-files=text -vi 'warning' |fgrep --binary-files=text -v 'ERROR'
+MAKE_ERRORS = egrep --binary-files=text '] Error |] Aborted' $(LOGDIR)/$(FILE)
+SAC_ERRORS  = egrep --binary-files=text 'ERROR|OOOPS|Assertion|ASSERTION|^\*\* ' $(LOGDIR)/$(FILE) \
+              | fgrep --binary-files=text -v 'EXCLUDE_ERRORS'
+YACC_ERRORS = egrep --binary-files=text 'conflicts:|Konflikte:' $(LOGDIR)/$(FILE)
+GENERAL_ERRORS = fgrep --binary-files=text -E '(LOG file was not created)|(Not run)' $(LOGDIR)/$(FILE)
+
+CHECK_CHANGES = gawk -f $(HOME)/Scripts/examine_checklog $(LOGDIR)/$(FILE)
+SAC2C_WARNINGS = gawk -f $(HOME)/Scripts/examine_sac2c_warnings $(LOGDIR)/$(FILE)
+
+################################################################################
+
+LOGDIR    = LOGS
+LOG_FILES = LOG_sac2c_prod LOG_stdlib_prod LOG_demos_prod LOG_demos_res_prod \
+                                           LOG_tutorial_prod LOG_tutorial_res_prod \
+                                           LOG_apex_prod LOG_apex_res_prod \
+                                           LOG_testsuite_prod LOG_testsuite_res_prod \
+            LOG_sac2c_std LOG_stdlib_std LOG_demos_std LOG_demos_res_std \
+                                         LOG_tutorial_std LOG_tutorial_res_std \
+                                         LOG_apex_std LOG_apex_res_std \
+                                         LOG_testsuite_std LOG_testsuite_res_std        
+REV_FILES = REV_sac2c REV_stdlib REV_sac
+
+################################################################################
+
+diagnostics: $(patsubst %,$(LOGDIR)/%,$(REV_FILES) $(LOG_FILES))
+	@ $(RM) $@
+	@ for f in $^ ; do\
+	   $(MAKE) --no-print-directory  $${f}.diag 2>&1 >>$@; \
+	  done;
+
+$(LOGDIR)/LOG_%_std.diag: $(LOGDIR)/LOG_%_std
+	@ $(MAKE)  --no-print-directory diag_$* "FILE=LOG_$*_std" "SUBRUN=$*" "VERSION=dbug"
+
+$(LOGDIR)/LOG_%_prod.diag: $(LOGDIR)/LOG_%_prod
+	@ $(MAKE)  --no-print-directory diag_$* "FILE=LOG_$*_prod" "SUBRUN=$*" "VERSION=product"
+
+$(LOGDIR)/LOG_%:
+	@ echo "LOG file was not created - consult LOGS/LOG for further details" >$@
+
+$(LOGDIR)/REV_%.diag: $(LOGDIR)/REV_%
+	@ echo -n "$*: "
+	@ cat $^
+
+$(LOGDIR)/REV_%:
+	@ echo "REV file was not created - consult LOGS/LOG for further details" >$@
+
+diag_sac2c:
+	@ $(MAKE) --no-print-directory diag_err
+	@ $(MAKE) --no-print-directory diag_warn
+
+diag_stdlib:
+	@ $(MAKE) --no-print-directory diag_err
+	@ $(MAKE) --no-print-directory diag_warn
+
+diag_demos:
+	@ $(MAKE) --no-print-directory diag_err
+	@ $(MAKE) --no-print-directory diag_sac2c_warn
+
+diag_demos_res:
+	@ $(MAKE) --no-print-directory check_diag
+
+diag_tutorial:
+	@ $(MAKE) --no-print-directory diag_err
+	@ $(MAKE) --no-print-directory diag_sac2c_warn
+
+diag_tutorial_res:
+	@ $(MAKE) --no-print-directory check_diag
+
+diag_apex:
+	@ $(MAKE) --no-print-directory diag_err
+	@ $(MAKE) --no-print-directory diag_sac2c_warn
+
+diag_apex_res:
+	@ $(MAKE) --no-print-directory check_diag
+
+diag_testsuite:
+	@ $(MAKE) --no-print-directory diag_err
+	@ $(MAKE) --no-print-directory diag_sac2c_warn
+
+diag_testsuite_res:
+	@ $(MAKE) --no-print-directory check_diag
+
+
+diag_err:
+	@ echo "************************************************************"
+	@ echo "     Errors $(SUBRUN) ($(VERSION) version):"
+	@ echo "************************************************************"
+	@ ( $(C_ERRORS); echo >/dev/null)
+	@ ( $(SAC_ERRORS); echo >/dev/null)
+	@ ( $(MAKE_ERRORS); echo >/dev/null)
+	@ ( $(YACC_ERRORS); echo >/dev/null)
+	@ ( $(GENERAL_ERRORS); echo)
+
+diag_warn:
+	@ echo "************************************************************"
+	@ echo "     Warnings $(SUBRUN) ($(VERSION) version):"
+	@ echo "************************************************************"
+	@ ( $(WARNINGS); echo >/dev/null)
+	@ ( clk_skews=`$(CLK_SKEWS)`; \
+            if [ $${clk_skews} -gt 0 ] ; then \
+              echo "$${clk_skews} clock skew(s) detected!" ; echo;  \
+            fi ; \
+            echo >/dev/null)
+	@ ( $(GENERAL_ERRORS); echo )
+
+diag_sac2c_warn:
+	@ echo "************************************************************"
+	@ echo "     Warnings $(SUBRUN) ($(VERSION) version):"
+	@ echo "************************************************************"
+	@ ( $(SAC2C_WARNINGS); echo >/dev/null)
+	@ ( clk_skews=`$(CLK_SKEWS)`; \
+            if [ $${clk_skews} -gt 0 ] ; then \
+              echo "$${clk_skews} clock skew(s) detected!" ; echo;  \
+            fi ; \
+            echo >/dev/null)
+	@ ( $(GENERAL_ERRORS); echo )
+
+
+check_diag:
+	@ echo "************************************************************"
+	@ echo "     Changed behavior when $(SUBRUN) ($(VERSION) version):"
+	@ echo "************************************************************"
+	@ ( $(CHECK_CHANGES); echo )
+
+
+
+
+################################################################################
+#
+# the following stuff is NOT used at the moment; it requires mending!
+#
+################################################################################
+
+old_diag:
+	@ $(MAKE) --no-print-directory check_diag \
+	        "FILE=LOG_$(ARCH).checksac2c_log.ssa" "VERSION=compiling demos (ssa-version)"
+	@ $(MAKE) --no-print-directory check_diag \
+	        "FILE=LOG_$(ARCH).tut_checksac2c_log" "VERSION=compiling tutorial"
+
+old_remote:
+	$(RSH) '$(SETUP); gmake -C sac/demo \
+	                          checksac2c CHECKLOGFILE=$$HOME/sac/CHECKLOG \
+	                         "SAC2CFLAGS=$(STD_FLAGS)"' \
+	                                            >$(LOGDIR)/LOG_$(ARCH).checksac2c.ssa 2>&1
+	$(RSH) '$(SETUP); gmake -C sac/tutorial \
+                "SAC2CFLAGS=$(STD_FLAGS)" \
+                       checksac2c CHECKLOGFILE=$$HOME/sac/CHECKLOG' \
+	               >$(LOGDIR)/LOG_$(ARCH).tut_checksac2c 2>&1
+
+

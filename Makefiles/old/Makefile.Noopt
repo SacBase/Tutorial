@@ -1,0 +1,10 @@
+#
+#  Makefile.Noopt
+#
+#  Makefile.Noopt is used to switch off specific optimization steps
+#  which cause troubles while compiling
+#
+
+ifeq ($(LIBNAME), ListIO)
+#  SAC2CFLAGS += -noopt
+endif
