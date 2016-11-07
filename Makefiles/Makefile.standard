@@ -139,9 +139,6 @@ $(TARGETDIR)/%_mt: %.sac
 # standard targets for handling a project
 #
 
-$(SACBASE)/Makefiles/Makefile.Config: $(SACBASE)/Makefiles/Makefile.Config.in
-	(cd $(SACBASE); ./configure )
-
 clean_local:
 	$(RM) $(FILETARGETS) *.bak *~ a.out* $(addsuffix .c,$(FILETARGETS)) \
               $(MTFILETARGETS) $(MTMODTARGETS) \
