@@ -5,11 +5,11 @@ use String: {string};
 
 /*
  * ========================================================================
- * Helper functions                                                        
+ * Helper functions
  */
 #ifndef RAWIMAGE
 use Color8: {newColor};
-use PNG: {drawArray};
+use PNG: {writePNG};
 #endif
 
 #ifdef SIMPLECLOCK
@@ -67,7 +67,7 @@ void write( string fn, int[.,.] m)
 {
   m = transpose( m);
   c = { i -> newColor( m[i], m[i], m[i])};
-  unused = drawArray( fn, c);
+  unused = writePNG( fn, c);
 }
 #endif /*RAWIMAGE*/
 
@@ -76,13 +76,13 @@ int[.,.] readImage( string fn)
 {
   if( fn String::== "") {
     res = FibreScanIntArray( stdin);
-  } 
+  }
   else {
     err, f = fopen( fn, "r");
     if( SysErr::fail( err)) {
       printf("\nFailed to open \"%s\", expecting data on stdin.\n", fn);
       res = FibreScanIntArray( stdin);
-    } 
+    }
     else {
       res = FibreScanIntArray( f);
       fclose( f);
@@ -110,18 +110,18 @@ inline
 int[*] thrs( int[*] vals, int max_val)
 {
   res = with{ ( . <= iv <= . ) : thrs( vals[iv], max_val);
-        } : genarray( shape( vals), 0); 
+        } : genarray( shape( vals), 0);
 
   return( res);
 }
 
 /*
- * Convolution with given mask 
+ * Convolution with given mask
  */
 inline
 int[.,.] apply( int[.,.] kernel, int[.,.] img)
 {
-  /* Generate offset matrix for given kernel 
+  /* Generate offset matrix for given kernel
    * for example, offsets for a 3x3 kernel are as follows:
    *
    * [-1,-1] | [0, -1] | [1, -1]
@@ -132,20 +132,20 @@ int[.,.] apply( int[.,.] kernel, int[.,.] img)
    */
   offs = with { (. <= iv <= .) : iv - (shape( kernel)[0]/2);
          } : genarray( shape( kernel), 0*shape( kernel));
- 
+
   /* Add boundary large enough for given kernel */
   b_size = shape(kernel)[0]/2;
-  framed = with{ 
-             ( 0*shape( img) + b_size <= iv < shape( img)+b_size) : 
+  framed = with{
+             ( 0*shape( img) + b_size <= iv < shape( img)+b_size) :
                img[iv - b_size];
-           } : genarray( shape( img) + 2*b_size, 0); 
+           } : genarray( shape( img) + 2*b_size, 0);
 
 
   /* apply kernel to framed image */
-  res = with { (0*shape(framed)+b_size <= iv < shape( framed)-b_size) : 
-                 abs( 
-                   sum( 
-                     with { ( . <= iiv <= . ) : 
+  res = with { (0*shape(framed)+b_size <= iv < shape( framed)-b_size) :
+                 abs(
+                   sum(
+                     with { ( . <= iiv <= . ) :
                        kernel[iiv] * framed[iv + offs[iiv]];
                      } : genarray( shape( kernel), 0)
                    )
@@ -158,7 +158,7 @@ int[.,.] apply( int[.,.] kernel, int[.,.] img)
 
 
 
-int[.,.] sobelEdges( int[.,.] img) 
+int[.,.] sobelEdges( int[.,.] img)
 {
   SY = [
         [1, 2, 1],
@@ -166,7 +166,7 @@ int[.,.] sobelEdges( int[.,.] img)
         [-1, -2, -1]
        ];
   SX = transpose( SY);
-  
+
   resX = apply( SX, img);
   resY = apply( SY, img);
 
@@ -176,19 +176,19 @@ specialize int[.,.] sobelEdges( int[4288,2848] img);
 
 
 
-int[.,.] gaussBlur( int[.,.] img) 
+int[.,.] gaussBlur( int[.,.] img)
 {
-  GB = [ 
+  GB = [
          [ 1, 2, 1],
          [ 2, 3, 2],
          [ 1, 2, 1]
        ];
 
-  return( apply( GB, img) / sum( GB)); 
+  return( apply( GB, img) / sum( GB));
 }
-specialize int[.,.] gaussBlur( int[4288,2848] img); 
+specialize int[.,.] gaussBlur( int[4288,2848] img);
 
-int[.,.] gaussBlur25( int[.,.] img) 
+int[.,.] gaussBlur25( int[.,.] img)
 {
   GB25 = [
            [ 1, 4, 7, 4, 1],
@@ -197,7 +197,7 @@ int[.,.] gaussBlur25( int[.,.] img)
            [ 4, 20, 33, 20, 4],
            [ 1, 4, 7, 4, 1]
          ];
-  return( apply( GB25, img) / sum( GB25)); 
+  return( apply( GB25, img) / sum( GB25));
 }
 
 
@@ -205,7 +205,7 @@ int main()
 {
 /*
  * ========================================================================
- * Handling of Command Line Arguments 
+ * Handling of Command Line Arguments
  */
   itcount    = 1;
   inputfile  = "";
@@ -218,11 +218,11 @@ int main()
           "\n <input>  : name of input file in Fibre format (default: stdin)"
           "\n <output> : name of output file (default: result[.png,.dat])"
           "\n\n", argv( 0));
-  
+
   for( i=1; i<argc()-1; i++) {
     if( argv( i) String::== "-c") {
-      itcount = String::toi( argv( i+1));  
-    } 
+      itcount = String::toi( argv( i+1));
+    }
     if( argv( i) String::== "-o") {
       outputfile = argv( i+1);
     }
@@ -238,8 +238,8 @@ int main()
   printf( "\n---------------------------------------------------------------"
           "\nIterations: %d, Input: \"%s\", Output: \"%s\""
           "\n---------------------------------------------------------------\n",
-          itcount, 
-          (inputfile String::== "") ?  "stdin" : inputfile, 
+          itcount,
+          (inputfile String::== "") ?  "stdin" : inputfile,
           outputfile);
 /*
  * END OF Handling of Command Line Arguments
@@ -250,7 +250,7 @@ int main()
   fprintf( stderr, "\nReading image ...\n");
 
   img = readImage( inputfile);
-  
+
   fprintf( stderr, "\nApplying filter %d time(s)...", itcount);
   img, start = timestamp( img);
   for( i=0; i<itcount; i++) {
@@ -264,12 +264,9 @@ int main()
   }
   img, end = timestamp( img);
   fprintf( stderr, "  finished after %fs\n", difftime( end, start));
-  
+
   fprintf( stderr, "\nWriting result image ...\n");
-  
+
   write( outputfile, img);
   return( 0);
 }
-
-
-
