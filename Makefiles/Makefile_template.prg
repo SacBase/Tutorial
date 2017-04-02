@@ -24,7 +24,7 @@ endif
 # LIBTARGETDIR                = .
 # INCTARGETDIR                = .
 # LIBSRCDIR                   = .
-# SUBDIRS                     = 
+# SUBDIRS                     =
 # MAKE_NON_LOCAL_DEPENDENCIES = yes
 
 #
@@ -39,7 +39,7 @@ endif
 #
 # CHECKLOGFILE                = $(HOME)/sac/CHECKLOG
 # CHECKDIR                    = .checkdir
-# RT_FLAGS                    = 
+# RT_FLAGS                    =
 # INPSDIR                     = .
 #
 #######################################################################################
@@ -59,6 +59,6 @@ include $(SACBASE)/Makefiles/Makefile.versions
 ifndef CHECKLOGFILE
 #CHECKLOGFILE	= $(HOME)/sac/CHECKLOG
 endif
- 
+
 #include $(SACBASE)/stdlib/Makefiles/Makefile.check
 

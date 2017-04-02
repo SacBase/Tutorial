@@ -80,6 +80,8 @@ standard_all: $(VERSIONTARGETS)
 # for which a XYZ.vers file is present, the version rules are created and written
 # into a file .XYZ.v. This is achieved by means of the following pattern rule:
 #
+# NOTE: echo on GNU/Linux and BSD is inconsistent with whne it'll expand `\' characters
+#       like `\n' or `\t' - as such below literal <TAB> characters have been inserted.
 
 .%.v: %.sac %.vers
 	@ $(ECHO) "creating $@ from $*.vers"
@@ -95,10 +97,10 @@ standard_all: $(VERSIONTARGETS)
 	  fi; \
 	  vflags=`echo $${v} | $(NAWK) -F: '{print $$2}'`; \
 	  $(ECHO) '$$(TARGETDIR)/'$${vname}': $*.sac .$*.v' >>$@; \
-	  $(ECHO) '\t@ $$(MKDIR) $$(TARGETDIR)' >>$@; \
-	  $(ECHO) '\t-$$(SAC2C) $$(SAC2CFLAGS) '$${vflags}' -o $$@ $$<' >>$@; \
-	  $(ECHO) '\t$$(RM) $$@.c' >>$@; \
-	  $(ECHO) '\t@ $$(ECHO) '\"'$$(SAC2C) $$(SAC2CFLAGS) '$${vflags}' -o $$@' \
+	  $(ECHO) '	@ $$(MKDIR) $$(TARGETDIR)' >>$@; \
+	  $(ECHO) '	-$$(SAC2C) $$(SAC2CFLAGS) '$${vflags}' -o $$@ $$<' >>$@; \
+	  $(ECHO) '	$$(RM) $$@.c' >>$@; \
+	  $(ECHO) '	@ $$(ECHO) '\"'$$(SAC2C) $$(SAC2CFLAGS) '$${vflags}' -o $$@' \
                    '$$<'\"' >.'$${vname}'$$(LF_EXT)' >>$@; \
 	  $(ECHO)  >>$@; \
 	done < $*.vers;

@@ -1,0 +1,148 @@
+#######################################################################################
+#
+# Makefile.Clibs
+#
+# This is an extension for Makefile.standard which includes pattern rules for
+# the generation of C-libraries. Basically, it is designed for the compilation
+# of the C-parts of the stdlib but it can be used in any other situation as
+# well. Therefore, the following assumptions are made:
+#
+# If the actual directory contains C-files only (no .sac files!), all .c-files
+# in the directory belong to the same module whose name equals the directory's
+# name.
+# Otherwise, it is assumed that each .c file constitutes its own library whose
+# name equals the .c-file's name.
+#
+
+include $(SACBASE)/Makefiles/Makefile.standard
+
+C_FILES      := $(sort $(patsubst %.y, %.tab,                     \
+                         $(patsubst %.l, lex.%,                   \
+                           $(patsubst %.c, %,                     \
+                            $(filter-out $(EXCLUDE_FILES),        \
+                                         $(wildcard *.[cly]))))))
+OBJECTS      := $(patsubst %, %.o, $(C_FILES))
+
+ifneq ($(C_FILES),)
+ifeq ($(SAC_FILES),)
+
+#
+# we assume all .c-files to belong to a single module.
+# Its name equals the last part of the actual directory.
+#
+
+C_MODS       := $(notdir $(shell pwd))
+C_MODTARGETS := $(patsubst %,$(LIBTARGETDIR)/%.a,$(notdir $(shell pwd)))
+
+$(LIBTARGETDIR)/%.a: $(OBJECTS)
+	$(MKDIR) $(LIBTARGETDIR)
+	$(AR) cr $@ $(OBJECTS)
+  ifdef RANLIB
+	$(RANLIB) $@
+  endif
+	$(CLOCK_SKEW_ELIMINATION) $@
+
+else
+
+#
+# we assume each file XYZ.c to define a module XYZ.a
+#
+
+C_MODS       := $(C_FILES)
+C_MODTARGETS := $(patsubst %,$(LIBTARGETDIR)/%.a, $(C_FILES))
+
+$(LIBTARGETDIR)/%.a: %.o
+	$(MKDIR) $(LIBTARGETDIR)
+	$(AR) cr $@ $<
+  ifdef RANLIB
+	$(RANLIB) $@
+  endif
+	$(CLOCK_SKEW_ELIMINATION) $@
+
+endif
+endif
+
+
+#
+# in case of MAKE_NON_LOCAL_DEPENDENCIES == yes, switch from $(C_MODTARGETS)
+# to dummy-targets .libD in order to get sac-conform output of gmake 8-)
+#
+
+ifeq ("$(MAKE_NON_LOCAL_DEPENDENCIES)", "yes")
+
+C_MODTARGETS_D     = $(patsubst %,%.libD, $(C_MODS))
+
+#
+# default target definition in case of MAKE_NON_LOCAL_DEPENDENCIES == yes:
+#
+standard_all: $(C_MODTARGETS_D)
+
+else
+
+#
+# normal default target definition:
+#
+
+standard_all: $(C_MODTARGETS)
+endif
+
+%.o: %.c
+	@if [ "$(@D)" == "." ]; \
+	then $(CC) $(CCFLAGS) $(CCINCLUDES) -o $@ -c $<; \
+	     $(CLOCK_SKEW_ELIMINATION) $@; \
+	else $(MAKE) -C $(@D); \
+	fi
+
+%.tab.c %.tab.h: %.y
+	$(YACC) $(YFLAGS) $<
+	$(CLOCK_SKEW_ELIMINATION) $*.tab.c $*.tab.h
+
+lex.%.c: %.l %.tab.h
+	$(LEX) $(LFLAGS) $<
+	$(CLOCK_SKEW_ELIMINATION) $@
+
+
+YACC_H_FILES   := $(patsubst %.y, %.tab.h, $(wildcard *.y))
+#
+# $(YACC_H_FILES) might be included by any .c files.
+# Therefore, bison has to be run before any dependency
+# is generated!
+#
+.%.d: %.c $(YACC_H_FILES)
+	@$(ECHO) "$(CC) -M $(CCFLAGS) $(CCINCLUDES) $<  > $@"
+	@if $(CC) -M $(CCFLAGS) $(CCINCLUDES) $<  > $@d ; \
+	 then sed 's/\($*\)\.o[ :]*/$*\.o $@\: /'  <$@d >$@; \
+	      $(RM) $@d ; \
+	 else $(RM) $@d ; \
+		  exit 1 ;  \
+	 fi
+	$(CLOCK_SKEW_ELIMINATION) $@
+
+%.libD:
+	@ $(MAKE) out2 modname_long=\($(LIBTARGETDIR)/\)$*.a
+	@ $(MAKE) $(LIBTARGETDIR)/$*.a
+
+.PRECIOUS: $(OBJECTS) %.tab.c %.tab.h lex.%.c
+
+#######################################################################################
+#
+# automatic dependency updating mechanism:
+#   gmake implicitly remakes all files that are included!
+#
+
+C_DEPS       = $(patsubst %,.%.d, $(C_FILES))
+
+ifneq ($(C_DEPS),)
+  ifneq ($(TARGET),clean)
+    ifneq ($(TARGET),distclean)
+      ifneq ($(TARGET),tar)
+        ifneq ($(TARGET),untar)
+include $(C_DEPS)
+        endif
+      endif
+    endif
+  endif
+endif
+
+
+

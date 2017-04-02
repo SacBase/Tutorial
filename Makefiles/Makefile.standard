@@ -32,7 +32,7 @@
 #######################################################################################
 #
 # make sure that Makefile.standard is not included more than once!
-# ( necessary since Makefile.time and Makefile.check both include 
+# ( necessary since Makefile.time and Makefile.check both include
 #   Makefile.standard but can be included from a single Makefile )
 #
 
@@ -130,7 +130,7 @@ $(TARGETDIR)/%_mt: %.sac
 	@ $(MKDIR) $(TARGETDIR)
 	-$(SAC2C) $(SAC2CFLAGS) -target mt_pth -o $@ $<
 	$(RM) $(TARGETDIR)/$*_mt.c
-	@ $(ECHO) "$(SAC2C) $(SAC2CFLAGS) -mt -o $@ $<" >.$*_mt$(LF_EXT)
+	@ $(ECHO) "$(SAC2C) $(SAC2CFLAGS) -t mt_pth -o $@ $<" >.$*_mt$(LF_EXT)
 	@ $(SAC2C) -V >> .$*_mt$(LF_EXT)
 
 
@@ -157,7 +157,7 @@ clean_local:
 	-$(RM) $(DEPS) $(C_DEPS) $(VERS)
 	-$(RM) $(CLOG_FILES) $(RES_FILES)
 
-# Don't call 'make' after clean_local has been made! Otherwise, $(DEPS), $(C_DEPS), 
+# Don't call 'make' after clean_local has been made! Otherwise, $(DEPS), $(C_DEPS),
 # and $(VERS) will be created again!
 
 
@@ -168,11 +168,11 @@ cleancheck_local:
 	-$(RM) $(CLOG_FILES) $(addsuffix .base,$(CLOG_FILES))
 	-$(RM) $(RES_FILES) $(addsuffix .base,$(RES_FILES))
 
-std_clean_propogate: 
+std_clean_propogate:
 	$(MAKE) subdirs TARGET="clean"
 	$(MAKE) clean_local
 
-clean: 
+clean:
 	$(MAKE) subdirs TARGET="clean"
 	$(MAKE) clean_local
 
@@ -218,6 +218,3 @@ subdirs:
 	  fi
 
 endif    # ifndef STDMKFILE
-
-
-
