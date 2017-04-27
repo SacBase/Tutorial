@@ -1,0 +1,173 @@
+#######################################################################################
+#
+# variables - mandatory:
+# ======================
+# $(CHECKLOGFILE)			where to put the results of gmake checksac2c
+#					and gmake checkres
+#
+# variables - optional:
+# =====================
+# $(CHECKDIR)		.checkdir	path to .clog and .res files
+# $(RT_FLAGS)		undef 		run-time flags
+# $(INPSDIR)		.		path to .inp(s) files
+#
+# standard targets:
+# =================
+# gmake checksac2c			remake .clog files and compare to .clog.base
+# gmake checkres			remake .res files and compare to .res.base
+# gmake checksac2c_base			remake .clog.base
+# gmake checkres_base			remake .res.base
+#
+#######################################################################################
+
+include $(SACBASE)/Makefiles/Makefile.standard
+include $(SACBASE)/Makefiles/Makefile.run
+
+.PHONY: result checksac2c checkres check_all_files
+
+
+#
+# Now, we implement a dirty trick for being able to mark pattern rules as phony.
+# The idea is to introduce a phony target "phony" which indeed does NOT do anything!
+# It can be used as a dependency for pattern rules which in fact renders all targets
+# that are built using those rules phony!
+#
+# In this Makefile, all pattern rules for *.clog and *.res files are extended
+# accordingly, making sure that these files will be rebuilt irrespective their
+# apriori existance.
+#
+
+.PHONY: phony
+
+phony:
+
+
+ifndef CLOG_FILES
+CLOG_FILES = $(patsubst %,$(CHECKDIR)/%.clog, $(notdir $(FILETARGETS)) \
+                                              $(notdir  $(MODTARGETS)) \
+                                                        $(VERSIONNAMES))
+endif
+
+ifndef RES_FILES
+RES_FILES = $(patsubst %,$(CHECKDIR)/%.res,$(FILES) $(basename $(notdir $(VERSIONTARGETS))))
+endif
+
+#######################################################################################
+#
+# preset optional pathes first:
+#   - CHECKDIR  : where to put  XYZ.clog/ XYZ.res if XYZ.sac is in the actual directory
+#   - INPSDIR    : where to find  XYZ.inp(s) if  XYZ.sac  is in the actual directory
+#
+
+ifndef CHECKDIR
+CHECKDIR = .checkdir
+endif
+
+ifndef INPSDIR
+INPSDIR = .
+endif
+
+
+#######################################################################################
+#
+# pattern rules for .clog files.
+#
+
+$(CHECKDIR)/%.clog: phony
+	@ if [ ! -d $(CHECKDIR) ];             \
+          then $(MKDIR) $(CHECKDIR);           \
+               $(ECHO) "$(MKDIR) $(CHECKDIR)"; \
+          fi
+	$(RM) $(CHECKDIR)/$* $(CHECKDIR)/*.h
+	$(MAKE) $(CHECKDIR)/$* "TARGETDIR=$(CHECKDIR)"    \
+                               "LIBTARGETDIR=$(CHECKDIR)" \
+                               "INCTARGETDIR=$(CHECKDIR)" >$@ 2>&1
+	$(RM) $(CHECKDIR)/$* $(CHECKDIR)/*.h
+	$(CLOCK_SKEW_ELIMINATION) $@
+
+
+#######################################################################################
+#
+# pattern rule for .res files. It relies on the intermediate target .XYZ.r
+# which according to the existance of XYZ.inp / XYZ.inps contains all intended calls of
+# the executable XYZ. The pattern rules for .XYZ.r along with fuirther comments can be
+# found in     $(SACBASE)/stdlib/Makefiles/Makefile.run  .
+#
+
+$(CHECKDIR)/%.res: .%.r phony
+	$(RM) $@
+	@ while read r; do                        \
+	    $(MAKE) result FILE="$*" RUN="$${r}"; \
+	  done < .$*.r
+	$(CLOCK_SKEW_ELIMINATION) $@
+
+
+
+
+#######################################################################################
+#
+# phony-rule "result".
+# "result" is used as universal "routine" for producing a program's result;
+# it is parameterized by the variables $(FILE) and $(RUN).
+#
+
+result:
+	@ if [ ! -d $(CHECKDIR) ]; \
+          then $(MKDIR) $(CHECKDIR); \
+               $(ECHO) "$(MKDIR) $(CHECKDIR)"; \
+          fi
+	$(RUN) >> $(CHECKDIR)/$(FILE).res 2>&1
+
+
+#######################################################################################
+#
+# standard targets for checking the compiler
+#
+
+checksac2c:
+	@ $(MAKE) check_all_files FILES_TO_BE_DONE="$(CLOG_FILES)" COMPARE="yes"
+	@ $(MAKE) subdirs TARGET="checksac2c"
+
+checkres:
+	@ $(MAKE) check_all_files FILES_TO_BE_DONE="$(RES_FILES)" COMPARE="yes"
+	@ $(MAKE) subdirs TARGET="checkres"
+
+checksac2c_base:
+	@ $(MAKE) check_all_files FILES_TO_BE_DONE="$(CLOG_FILES)"
+	@ $(MAKE) subdirs TARGET="checksac2c_base"
+
+checkres_base:
+	@ $(MAKE) check_all_files FILES_TO_BE_DONE="$(RES_FILES)"
+	@ $(MAKE) subdirs TARGET="checkres_base"
+
+#######################################################################################
+#
+# phony-rule "check_all_files".
+# "check_all_files" runs diff on an old and a new version and catalogs the 
+# result in the log file $(CHECKLOGFILE).
+# It is parameterized by $(FILES_TO_BE_DONE) and $(COMPARE).
+#
+
+check_all_files:
+	@ if [ "$(CHECKLOGFILE)" = "" ]; \
+	  then $(ECHO) CHECKLOGFILE not defined! >&2; \
+	       exit 1 ; \
+	  fi
+	@ if [ "$(FILES_TO_BE_DONE)x" != "x" ]; then \
+	    if [ ! -d $(CHECKDIR) ]; then \
+              $(MKDIR) $(CHECKDIR); \
+              $(ECHO) "$(MKDIR) $(CHECKDIR)"; \
+            fi; \
+            for f in $(FILES_TO_BE_DONE)"" ; do \
+	      $(ECHO) `$(DATE)`'>>>>>'`pwd`/$${f}: >> $(CHECKLOGFILE); \
+	      if [ "$(COMPARE)" = "yes" -a -f $${f}.base ] ; then \
+	        $(MAKE) -i $${f}; \
+	        $(DIFF) $${f} $${f}.base >>$(CHECKLOGFILE) 2>&1; \
+                $(ECHO) '">" : base;  "<" : actual' >> $(CHECKLOGFILE); \
+              else \
+	        $(MAKE) $${f}; \
+	        $(MV) $${f} $${f}.base; \
+	        $(ECHO) "base version created!" >> $(CHECKLOGFILE); \
+              fi; \
+	    done; \
+          fi

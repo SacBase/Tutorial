@@ -57,8 +57,8 @@ include $(SACBASE)/Makefiles/Makefile.versions
 # Setup CHECKLOGFILE for Makefile.check:
 #
 ifndef CHECKLOGFILE
-#CHECKLOGFILE	= $(HOME)/sac/CHECKLOG
+CHECKLOGFILE	= $(HOME)/sac/CHECKLOG
 endif
 
-#include $(SACBASE)/stdlib/Makefiles/Makefile.check
+include $(SACBASE)/Makefiles/Makefile.check
 

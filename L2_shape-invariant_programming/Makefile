@@ -3,6 +3,7 @@
 # General Setup:
 #
 SAC2CFLAGS = -check tb -v 1 -O3 
+export EXCLUDE_ERRORS := yes
 
 ifdef EXCLUDE_ERRORS
 SAC2CFLAGS += -DEXCLUDE_ERRORS

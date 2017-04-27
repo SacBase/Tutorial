@@ -1,0 +1,273 @@
+#######################################################################################
+#
+# variables - mandatory:
+# ======================
+#
+# variables - optional:
+# =====================
+# $(INPSDIR)		.		path to .inp(s) files
+# $(RT_FLAGS)		undef 		run-time flags
+#
+# standard targets:
+# =================
+#
+#######################################################################################
+
+include $(SACBASE)/Makefiles/Makefile.standard
+
+.PHONY : inputs nest prepand
+
+#######################################################################################
+#
+# make sure that Makefile.run is not included more than once!
+# ( necessary since Makefile.time and Makefile.check both include
+#   Makefile.run but can be included from a single Makefile )
+#
+
+ifndef RUNMKFILE
+RUNMKFILE = "already included"
+
+#######################################################################################
+#
+# preset optional pathes first:
+#   - INPSDIR    : where to find  XYZ.inp(s) if  XYZ.sac  is in the actual directory
+#
+
+ifndef INPSDIR
+INPSDIR = .
+endif
+
+
+#######################################################################################
+#
+# This Makefile is a helper Makefile for timing and checking executables being 
+# previously built.
+# Both of those tasks require calls of executables to made. These calls are
+# put into intermediate files .XYZ.r. The pattern rules for these files are given here.
+#
+# Irrespective of the number of executives built from one source file
+# ( cf. Makefile.versions for details) three different input modes are available:
+#
+#   - no input             : the generated call is
+#                            "XYZ $(RT_FLAGS)"
+#   - single input file    : for XYZ.sac  $(INPSDIR)/XYZ.inp is expected to be
+#                            a legal input file; the generated call is
+#                            "XYZ $(RT_FLAGS) < $(INPSDIR)/XYZ.inp"
+#   - multiple input files : for XYZ.sac  $(INPSDIR)/XYZ.inps is expected to 
+#                            provide the names of legal input files.
+#                            The input filename optionally may be followed by
+#                            runtime flags to be used additionally
+#                            For example, a line
+#                                XYZ.inp : -mt 4
+#                            leads to a call
+#                            "XYZ -mt 4 $(RT_FLAGS) < $(INPSDIR)/XYZ.inp"
+#
+# However, to ease consistent handling of several versions, there are two default
+# input mechanisms added:
+# 1) whenever there exists a .inp or .inps for the "base version", but there is 
+#    neither of them for the derived version, a link will be created automatically.
+# 2) whenever a target has an extension "_mt", "-mt 2" will be implicitly added
+#    to $(RT_FLAGS). This is particularily usefull when using $(MAKE_MT_ALSO).
+# 
+# In addition there are some more orthogonalizations you can define:
+#
+#   - the %.rtfs - File can contain several RunTimeFlag-Combinations, e.g.:
+#
+#       -flag1 -flag2
+#       -flag3 -flag4
+#       -flag5
+#
+#     will result in three times more calls, one call-set for each flag-combination
+#
+#   - the %.envs - File can contain definitions of Enviroment-Variables, e.g.:
+#
+#       PARALLEL=5; export PARALLEL
+#       PARALLEL=10; export PARALLEL
+#
+#   - the %.lncs - File can contain launch-program - calls, eg:
+#
+#       mpi-start -mt2
+#       mpi-start -mt5
+#
+#   The "base version" mechanism as described above works here as well.
+#   And of cause you don't always have to have all the files.
+#
+
+
+
+#
+# Pattern rules for handling the environments:
+#
+# For each file .%.ln, a file .%.r is created. It contains calls of the form: 
+# "<launcher> <exec> <rtfs-rt-flags> <inps-rt-flags> <RT_FLAGS> < <input-file>"
+#
+
+.%.r: %.envs .%.ln
+	@ $(MAKE) nest INNER=.$*.ln OUTER=$*.envs OUTFILE=$@
+
+.%_mt.r: .%_mt.ln
+	@ if [ -f $*.envs ]; then                                  \
+            $(MAKE) nest INNER=.$*_mt.ln OUTER=$*.envs OUTFILE=$@; \
+          else                                                     \
+            cp .$*_mt.ln $@;                                       \
+          fi
+
+.%.r: .%.ln
+	@ if [ "$(PARENT_$*)x" != "x" -a -f $(PARENT_$*).envs ]; then     \
+            $(MAKE) nest INNER=.$*.ln OUTER=$(PARENT_$*).envs OUTFILE=$@; \
+          else                                                            \
+            cp .$*.ln $@;                                                 \
+          fi
+
+#
+# Pattern rules for handling the launchers:
+#
+# For each file .%.sc, a file .%.ln is created. It contains calls of the form: 
+# "<launcher> <exec> <rtfs-rt-flags> <inps-rt-flags> <RT_FLAGS> < <input-file>"
+#
+
+.%.ln: %.lncs .%.sc
+	@ $(MAKE) nest INNER=.$*.sc OUTER=$*.lncs OUTFILE=$@
+
+.%_mt.ln: .%_mt.sc
+	@ if [ -f $*.lncs ]; then                                  \
+            $(MAKE) nest INNER=.$*_mt.sc OUTER=$*.lncs OUTFILE=$@; \
+          else                                                     \
+            cp .$*_mt.sc $@;                                       \
+          fi
+
+.%.ln: .%.sc
+	@ if [ "$(PARENT_$*)x" != "x" -a -f $(PARENT_$*).lncs ]; then     \
+            $(MAKE) nest INNER=.$*.sc OUTER=$(PARENT_$*).lncs OUTFILE=$@; \
+          else                                                            \
+            cp .$*.sc $@;                                                 \
+          fi
+
+#
+# Pattern rule for inserting the executable call:
+#
+
+.%.sc: .%.rt
+	@ $(MAKE) prepand INFILE=.$*.rt PREFIX=$(TARGETDIR)/$* OUTFILE=$@
+
+#
+# Pattern rules for handling the rtflags:
+#
+# For each file .%.in, a file .%.rt is created. It contains calls of the form: 
+# "<rtfs-rt-flags> <inps-rt-flags> <RT_FLAGS> < <input-file>"
+#
+
+.%.rt: %.rtfs .%.in
+	@ $(MAKE) nest INNER=.$*.in OUTER=$*.rtfs OUTFILE=$@
+
+.%_mt.rt: .%_mt.in
+	@ if [ -f $*.rtfs ]; then                                  \
+            $(MAKE) nest INNER=.$*_mt.in OUTER=$*.rtfs OUTFILE=$@; \
+          else                                                     \
+            cp .$*_mt.in $@;                                       \
+          fi
+
+.%.rt: .%.in
+	@ if [ "$(PARENT_$*)x" != "x" -a -f $(PARENT_$*).rtfs ]; then    \
+            $(MAKE) nest INNER=.$*.in OUTER=$(PARENT_$*).rtfs OUTFILE=$@; \
+          else                                                           \
+            cp .$*.in $@;                                                \
+          fi
+
+
+#
+# Pattern rules for handling the inputs:
+#
+# For each file $(TARGETDIR)/%, a file .%.in is created.
+# It contains calls of the form:  "<inps-rt-flags> <RT_FLAGS> < <input-file>"
+#
+
+.%.in: $(INPSDIR)/%.inps $(TARGETDIR)/%
+	@ $(MAKE) inputs INFILE=$(INPSDIR)/$*.inps OUTFILE=$@
+
+
+.%.in: $(INPSDIR)/%.inp $(TARGETDIR)/%
+	@ $(ECHO) "$(TARGETDIR)/$* $(RT_FLAGS) <$(INPSDIR)/$*.inp" >$@
+	@ $(CLOCK_SKEW_ELIMINATION) $@
+
+
+.%_mt.in: $(TARGETDIR)/%_mt
+	@ if [ -f $(INPSDIR)/$*.inps ]; then \
+	    $(MAKE) inputs INFILE=$(INPSDIR)/$*.inps OUTFILE=$@ RT_FLAGS="$(RT_FLAGS) -mt 2"; \
+	  elif [ -f $(INPSDIR)/$*.inp ]; then \
+	    $(ECHO) " $(RT_FLAGS) -mt 2 <$(INPSDIR)/$*.inp" >$@; \
+	  else \
+	    $(ECHO) " $(RT_FLAGS) -mt 2" >$@; \
+	  fi
+	@ $(CLOCK_SKEW_ELIMINATION) $@
+
+
+.%.in: $(TARGETDIR)/%
+	@ if [ "$(PARENT_$*)x" != "x" ]; then \
+	    if [ -f $(INPSDIR)/$(PARENT_$*).inps ]; then \
+	      $(MAKE) inputs INFILE=$(INPSDIR)/$(PARENT_$*).inps OUTFILE=$@; \
+	    elif [ -f $(INPSDIR)/$(PARENT_$*).inp ]; then \
+	      $(ECHO) " $(RT_FLAGS) <$(INPSDIR)/$(PARENT_$*).inp" >$@; \
+	    else \
+	      $(ECHO) " $(RT_FLAGS)" >$@; \
+	    fi; \
+	  else \
+	    $(ECHO) " $(RT_FLAGS)" >$@; \
+	  fi
+	@ $(CLOCK_SKEW_ELIMINATION) $@
+
+################################################################################
+#
+# Procedure:   inputs ( $(INFILE), $(OUTFILE) )
+#
+# It inspects te .inps-file given by $(INFILE) and writes entries of the form
+#
+#  <inps-rt-flags> <RT_FLAGS> < <input-file>
+#
+# into the file $(OUTFILE).
+#
+inputs:
+	@ $(RM) $(OUTFILE)
+	@ while read f; do                                                              \
+	    input=`echo $${f} | $(NAWK) -F: '{gsub(" ","",$$1); print $$1}'`;           \
+	    add_rt_flags=`echo $${f} | $(NAWK) -F: '{print $$2}'`;                      \
+	    $(ECHO) " $${add_rt_flags} $(RT_FLAGS) <$(INPSDIR)/$${input}" >>$(OUTFILE); \
+	  done < $(INFILE);
+	@ $(CLOCK_SKEW_ELIMINATION) $(OUTFILE)
+
+
+################################################################################
+#
+# Procedure:   nest ( $(INNER), $(OUTER), $(OUTFILE) )
+#
+# Creates the carthesian product of all entries of $(INNER) and $(OUTER), and
+# writes entries of the form <outer> <inner> into the file $(OUTFILE).
+#
+
+nest:
+	@ $(RM) $(OUTFILE)
+	@ while read pre; do                         \
+	    while read post; do                      \
+	      $(ECHO) $${pre} $${post} >>$(OUTFILE); \
+	    done < $(INNER);                         \
+	  done < $(OUTER)
+	@ $(CLOCK_SKEW_ELIMINATION) $(OUTFILE)
+
+
+################################################################################
+#
+# Procedure:   prepand ( $(INFILE), $(PREFIX), $(OUTFILE) )
+#
+# Traverses all entries of $(INFILE) and prepands $(PREFIX) to them.
+# The result is written into the file $(OUTFILE).
+#
+
+prepand:
+	@ $(RM) $(OUTFILE)
+	@ while read f; do                         \
+	    $(ECHO) $(PREFIX) $${f} >> $(OUTFILE); \
+	  done < $(INFILE)
+	@ $(CLOCK_SKEW_ELIMINATION) $(OUTFILE)
+
+
+endif    # ifndef RUNMKFILE
