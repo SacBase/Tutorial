@@ -7,7 +7,7 @@ export all;
 
 /** <!--*******************************************************************-->
  *
- * @fn complex escapeValue(complex z, int depth)
+ * @fn int, complex escapeTimeAndValue (complex z, int depth)
  *
  *   @brief iteratively computes c = c*c + z starting from c=z.
  *          terminates either when |c| > 2 or depth iterations
@@ -16,46 +16,34 @@ export all;
  *
  *   @return final complex value
  *****************************************************************************/
-int, complex escapeTimeAndValue(complex z, int depth)
+int, complex escapeTimeAndValue (complex z, int depth)
 {
-  i=0; c=z;
+    i=0; c=z;
 
-  while( (normSq( c) <= 4d) && (i <= depth)) {
-    c=c*c+z; i++;
-  }
+    while( (normSq( c) <= 4d) && (i <= depth)) {
+        c=c*c+z; i++;
+    }
 
-  return(i, c);
+    return(i, c);
 }
 
 /** <!--*******************************************************************-->
  *
- * @fn complex[*] escapeValue(complex[*] z, int depth)
+ * @fn int[m,n], complex[m,n] escapeTimeAndValue (complex[m,n] z, int depth)
  *
  *   @brief maps escapeValue to an entire array of complex numbers
  *
  *****************************************************************************/
 inline
-int[.,.], complex[.,.] escapeTimeAndValue( complex[.,.] plane, int depth)
+int[m,n], complex[m,n] escapeTimeAndValue ( complex[m,n] plane, int depth)
 {
-  times = with {
-            ( . <= x <= .) {
-              t, v = escapeTimeAndValue( plane[x], depth);
-            } : t;
-          } : genarray( shape( plane), 0);
-
-  values = with {
-             ( . <= x <= .) {
-               t, v = escapeTimeAndValue( plane[x], depth);
-             } : v;
-           } : genarray( shape( plane), toc(0));
-
-  return( times, values);
+    return { iv -> escapeTimeAndValue (plane[iv]) };
 }
 
 
 /** <!--*******************************************************************-->
  *
- * @fn double normalizedIterationCount(int n, complex zn)
+ * @fn double[d:shp] normalizedIterationCount (int[d:shp] n, complex[d:shp] zn)
  *
  *   @brief normalizes the iteration counts in "n" taking the distance of the 
  *          corresponding final complex numbers from the origin into account.
@@ -66,7 +54,7 @@ int[.,.], complex[.,.] escapeTimeAndValue( complex[.,.] plane, int depth)
  *   @return the normalized iteration counts
  *****************************************************************************/
 inline
-double[*] normalizedIterationCount(int[*] n, complex[*] zn)
+double[d:shp] normalizedIterationCount(int[d:shp] n, complex[d:shp] zn)
 {
   return( where( (norm( zn) <= 2d) , 0d , tod(n+1) - log2( log2( norm( zn)))));
 }
@@ -74,7 +62,7 @@ double[*] normalizedIterationCount(int[*] n, complex[*] zn)
 
 /** <!--*******************************************************************-->
  *
- * @fn color[.,.] doubleArrayToRGB( double[.,.] a)
+ * @fn color[d:shp] doubleArrayToRGB( double[d:shp] a)
  *
  *   @brief transforms an array of doubles into RGB values, by 
  *          FIRST scaling them into values between 0.0 and 360.0, and
@@ -85,7 +73,7 @@ double[*] normalizedIterationCount(int[*] n, complex[*] zn)
  *   @return RGB values
  *****************************************************************************/
 inline
-Color8::color[.,.] doubleArrayToRGB( double[.,.] a)
+Color8::color[d:shp] doubleArrayToRGB( double[d:shp] a)
 {
   max = maxval( a);
   min = minval( a);

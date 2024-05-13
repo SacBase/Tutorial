@@ -8,7 +8,7 @@ export all;
 
 /** <!--*******************************************************************-->
  * 
- * @fn : complex[.,.] genComplexArray( int[2] shp, complex cmin, complex cmax)
+ * @fn : complex[2:shp] genComplexArray( int[2] shp, complex cmin, complex cmax)
  *
  *   @brief generates an array of complex numbers with shape "shp" and 
  *          linearly increasing/decreasing values between "cmin" and "cmax".
@@ -17,13 +17,12 @@ export all;
  *
  *****************************************************************************/
 inline
-complex[.,.] genComplexArray( int[2] shp, complex cmin, complex cmax)
+complex[2:shp] genComplexArray( int[2] shp, complex cmin, complex cmax)
 {
-  res = with {
-          ( . <= iv <= .) : cmin + toc( reverse( (tod(iv) / tod(shp))
-                                                 * reverse( todv(cmax-cmin))));
-        } : genarray( shp, toc( 0,0));
-  return( res);
+    diff = cmax - cmin;
+    delta = [imag (diff) / tod( shp[0]) , real (diff) / tod (shp[1])];
+
+    return { iv ->  cmin + toc (tod (iv) * delta) | iv < shp };
 }
 
 
@@ -41,31 +40,27 @@ complex[.,.] genComplexArray( int[2] shp, complex cmin, complex cmax)
 inline
 int escapeTime(complex z, int depth)
 {
-  i=0; c=z;
+    i=0; c=z;
 
-  while( (normSq( c) <= 4d) && (i <= depth)) {
-    c=c*c+z; i++;
-  }
+    while( (normSq( c) <= 4d) && (i <= depth)) {
+        c=c*c+z; i++;
+    }
 
-  return(i);
+    return(i);
 }
 
 /** <!--*******************************************************************-->
  *
- * @fn int[*] escapeTime(complex[*] z, int depth)
+ * @fn int[n:shp] escapeTime(complex[n:shp] z, int depth)
  *
  *   @brief maps escapeTime to an entire array of complex numbers
  *
  *****************************************************************************/
 
 inline
-int[*] escapeTime( complex[*] plane, int depth)
+int[n:shp] escapeTime( complex[n:shp] plane, int depth)
 {
-  values = with {
-             ( . <= iv <= .) : escapeTime( plane[iv], depth);
-           } : genarray( shape( plane), 0);
-
-  return( values);
+    return { iv -> escapeTime (plane[iv], depth) };
 }
 
 /** <!--*******************************************************************-->
@@ -78,13 +73,11 @@ int[*] escapeTime( complex[*] plane, int depth)
 inline
 Color8::color[.,.] intArrayToMonochrome( int[.,.] a)
 {
-  clut = genLogarithmicClut( 0.4d, 0.9d, Color8::black(), Color8::red());
+    clut = genLogarithmicClut( 0.4d, 0.9d, Color8::black(), Color8::red());
 
-  a = (a * 255) / maxval(a);
+    a = (a * 255) / maxval(a);
 
-  d = with {
-        ( .<= iv <= .) : clut[ a[ iv]];
-      } : genarray( shape(a), Color8::black());
+    return { iv -> clut[ a[ iv]] };
 
   return( d);
 }
