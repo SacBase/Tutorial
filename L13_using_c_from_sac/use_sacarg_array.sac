@@ -1,0 +1,13 @@
+external int[n] sub (int[n] x, int[n] y);
+  #pragma linkobj "sacarg_array.o"
+  #pragma header  "sacarg_array.h"
+  #pragma sacarg [0,1,2]
+
+int main()
+{
+  a = _hideShape_SxA_(1, [1,2,3,4,5]);
+  StdIO::print (a);
+  StdIO::print (sub (a, [1,2,3]));
+  StdIO::print (a);
+  return 0;
+}

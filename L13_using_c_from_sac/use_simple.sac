@@ -1,0 +1,19 @@
+external int sub (int x, int y);
+  #pragma linkobj "simple.o"
+  #pragma header  "simple.h"
+
+external int subfrom (int x, int y);
+  #pragma linkobj  "simple.o"
+  #pragma header   "simple.h"
+  #pragma linksign [1,1,2]
+
+
+int main()
+{
+
+  StdIO::printf("2 minus 1 equates to %d\n", sub (2, 1));
+  StdIO::printf("2 minus 1 is %d\n", subfrom (2, 1));
+
+  return 0;
+}
+

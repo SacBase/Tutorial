@@ -1,0 +1,23 @@
+external int[5] sub (int[5] x, int[5] y);
+  #pragma linkobj "array.o"
+  #pragma header  "array.h"
+
+external int[5] subfrom (int[5] x, int[5] y);
+  #pragma linkobj "array.o"
+  #pragma header  "array.h"
+  #pragma linksign [1,1,2]
+
+
+
+int main()
+{
+
+  a = [1,2,3,4,5];
+  StdIO::print (a);
+  StdIO::print (sub (a, a));
+  StdIO::print (subfrom (a, a));
+  StdIO::print (a);
+
+  return 0;
+}
+
